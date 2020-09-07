@@ -20,14 +20,11 @@ public:
 	void SetBGR(unsigned int bgr);
 	void Set(int u, int v, unsigned int color);
 
-	void Set2dSegment(Vector p1, Vector p2, unsigned int col);
-	void Set2dTriangle(Vector p1, Vector p2, Vector p3, unsigned int col);
-	void Set2dRectangle(Vector origin, float width, float height, unsigned int col);
-	void Set2dCircle(Vector center, float radius, unsigned int col);
+	void SetSegment(Vector p1, Vector p2, unsigned int col);
+	void DrawTriangle(Vector p1, Vector p2, Vector p3);
+	void SetRectangle();
+	void SetCircle();
 
 	void LoadTiff(char* fname);
 	void SaveAsTiff(char *fname);
-
-private:
-	bool checkEdge(Vector p, float a, float b, float c);
 };

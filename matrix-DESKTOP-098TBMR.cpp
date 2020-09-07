@@ -8,6 +8,12 @@
 
 using namespace std;
 
+Matrix::Matrix() {
+	r0 = Vector();
+	r1 = Vector();
+	r2 = Vector();
+}
+
 Matrix::Matrix(Vector _r0, Vector _r1, Vector _r2) {
 
 	r0 = _r0;
@@ -74,19 +80,6 @@ std::ostream& operator<<(std::ostream& strm, const Matrix m) {
 
 }
 
-istream& operator>>(istream& input, Matrix& m) {
-
-	cerr << "\nEnter row 1: ";
-	input >> m[0];
-	cerr << "Enter row 2: ";
-	input >> m[1];
-	cerr << "Enter row 3: ";
-	input >> m[2];
-
-	return input;
-
-}
-
 #pragma endregion Operator overide methods
 
 #pragma region Public Methods
@@ -106,23 +99,19 @@ void Matrix::SetColumn(int i, Vector v) {
 }
 
 void Matrix::Invert() {
+	Vector mr0 = Vector(getCofactor(0, 0), -getCofactor(0, 1), getCofactor(0, 2));
+	Vector mr1 = Vector(-getCofactor(1, 0), getCofactor(1, 1), -getCofactor(1, 2));
+	Vector mr2 = Vector(getCofactor(2, 0), -getCofactor(2, 1), getCofactor(2, 2));
 
-	Vector a = GetColumn(0), b = GetColumn(1), c = GetColumn(2);
-	Vector _a = b ^ c; _a = _a / (a * _a);
-	Vector _b = c ^ a; _b = _b / (b * _b);
-	Vector _c = a ^ b; _c = _c / (c * _c);
+	Matrix mm = Matrix(mr0, mr1, mr2);
 
-	r0 = _a;
-	r1 = _b;
-	r2 = _c;
-}
+	mm.Transpose();
 
-Matrix Matrix::Inverted() {
+	float det = r0[0] * mr0[0] - r0[1] * -mr0[1] + r0[2] * mr0[2];
 
-	Matrix ret = (*this);
-	ret.Invert();
-
-	return ret;
+	r0 = mm[0] / det;
+	r1 = mm[1] / det;
+	r2 = mm[2] / det;
 }
 
 void Matrix::Transpose() {
@@ -135,37 +124,36 @@ void Matrix::Transpose() {
 	SetColumn(2, nr2);
 }
 
-Matrix Matrix::Transposed() {
-	Matrix ret = (*this);
-	
-	ret.Transpose();
+void Matrix::SetRotationMatrix(float degrees) {
 
-	return ret;
-}
-
-void Matrix::SetRotationMatrixX(float radians) {
-
-	r0 = Vector(1, 0, 0);
-	r1 = Vector(0, cos(radians), -sin(radians));
-	r2 = Vector(0, sin(radians), cos(radians));
-}
-
-void Matrix::SetRotationMatrixY(float radians) {
+	float radians = degrees * (M_PI / 180);
 
 	r0 = Vector(cos(radians), 0, sin(radians));
 	r1 = Vector(0, 1, 0);
 	r2 = Vector(-sin(radians), 0, cos(radians));
 }
 
-void Matrix::SetRotationMatrixZ(float radians) {
-
-	r0 = Vector(cos(radians), -sin(radians), 0);
-	r1 = Vector(sin(radians), cos(radians), 0);
-	r2 = Vector(0, 0, 1);
-}
-
 #pragma endregion Preforms matrix operations
 
 #pragma region Private Methods
+
+float Matrix::getCofactor(int row, int col) {
+
+	float det[4];
+	int i = 0;
+
+	for (int r = 0; r < rows; r++) {
+		for (int c = 0; c < cols; c++) {
+			if (r != row && c != col) {
+				det[i] = GetColumn(c)[r];
+				i++;
+
+				if (i == 4) break;
+			}
+		}
+	}
+
+	return det[0] * det[3] - det[1] * det[2];
+}
 
 #pragma endregion

@@ -1,16 +1,24 @@
 #include "stdafx.h"
-#include "vector.h"
 
-#define _USE_MATH_DEFINES 
+#include "vector.h"
 #include "math.h"
+#include "matrix.h";
 
 #include <iostream>
-#include "matrix.h"
+
+using namespace std;
 
 Vector Vector::XAXIS = Vector(1, 0, 0);
 Vector Vector::YAXIS = Vector(0, 1, 0);
 Vector Vector::ZAXIS = Vector(0, 0, 1);
-Vector Vector::ZERO = Vector(0, 0, 0);
+
+Vector::Vector() {
+
+	x = 0;
+	y = 0;
+	z = 0;
+
+}
 
 Vector::Vector(float _x, float _y, float _z) {
 
@@ -94,15 +102,9 @@ Vector Vector::operator/(float s) {
 
 }
 
-ostream& operator<<(ostream& strm, const Vector v) {
+std::ostream& operator<<(std::ostream& strm, const Vector v) {
 
 	return strm << "[" << v[0] << ", " << v[1] << ", " << v[2] << "]";
-
-}
-
-istream& operator>>(istream& input, Vector& v) {
-
-	return input >> v[0] >> v[1] >> v[2];
 
 }
 
@@ -119,63 +121,46 @@ void Vector::Normalize() {
 	z = z / l;
 }
 
-Vector Vector::Normalized() {
-
-	return (*this) / Length();
-
-}
-
 
 float Vector::Length() {
 
-	Vector v = (*this);
-	return sqrt(v * v);
+	return sqrt(x * x + y * y + z * z);
 
 }
 
 void Vector::RotatePoint(Vector origin, Vector direction, float angle) {
 
-	Vector aAxis = direction.Normalized();
+	float dotX = abs(XAXIS * direction);
+	float dotZ = abs(ZAXIS * direction);
 
-	float dotX = abs(XAXIS * aAxis);
-	float dotY = abs(YAXIS * aAxis);
-
-	Vector bAxis, cAxis;
-	if (dotX < dotY) {
-		bAxis = (XAXIS ^ aAxis).Normalized();
-		cAxis = (aAxis ^ bAxis).Normalized();
+	Vector bAxis;
+	if (dotX < dotZ) {
+		bAxis = XAXIS ^ direction;
+		bAxis.Normalize();
 	}
 	else {
-		bAxis = (YAXIS ^ aAxis).Normalized();
-		cAxis = (aAxis ^ bAxis).Normalized();
+		bAxis = ZAXIS ^ direction;
 	}
 
+	bAxis.Normalize();
+	
+	Vector cAxis = direction ^ bAxis;
+	cAxis.Normalize();
+
 	Vector transPoint = Vector(x, y, z) - origin;
-	Matrix transM = Matrix(aAxis, bAxis, cAxis);
+
 	Matrix rotation = Matrix();
+	rotation.SetRotationMatrix(angle);
 
-	rotation.SetRotationMatrixX(angle * (M_PI / 180));
-
-	transPoint = transM * transPoint;
 	transPoint = rotation * transPoint;
-
-	transM.Transpose();
-	transPoint = transM * transPoint;
 
 	x = transPoint[0] + origin[0];
 	y = transPoint[1] + origin[1];
 	z = transPoint[2] + origin[2];
 }
 
-void Vector::RotateVector(Vector axis, float angle) {
+void Vector::RotateVector(Vector axis) {
 
-	Vector v = (*this);
-
-	v.RotatePoint(ZERO, axis, angle);
-
-	x = v[0];
-	y = v[1];
-	z = v[2];
 }
 
 #pragma endregion Preforms vector operations

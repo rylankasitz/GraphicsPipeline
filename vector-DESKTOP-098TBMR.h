@@ -2,16 +2,13 @@
 
 #include <iostream>
 
-using namespace std;
-
 class Vector {
 public:
 	static Vector XAXIS;
 	static Vector YAXIS;
 	static Vector ZAXIS;
-	static Vector ZERO;
 
-	Vector() {};
+	Vector();
 	Vector(float x, float y, float z);
 
 	const float& operator[](const int i) const;
@@ -24,12 +21,10 @@ public:
 	Vector operator/(float s);
 
 	friend std::ostream& operator<<(std::ostream&, const Vector);
-	friend std::istream& operator>>(std::istream&, Vector&);
 
 	void Normalize();
-	Vector Normalized();
 	void RotatePoint(Vector origin, Vector direction, float angle);
-	void RotateVector(Vector axis, float angle);
+	void RotateVector(Vector axis);
 
 	float Length();
 

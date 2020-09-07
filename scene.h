@@ -13,7 +13,8 @@ public:
 	FrameBuffer *fb;
 	Scene();
 	void DBG();
-	void NewButton();
+	void Calc();
+	void Demo();
 };
 
 extern Scene *scene;

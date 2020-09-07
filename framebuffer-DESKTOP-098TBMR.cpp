@@ -2,11 +2,10 @@
 
 #include "framebuffer.h"
 #include "math.h"
+#include <iostream>
 #include "scene.h"
 
 #include <tiffio.h>
-#include <algorithm>  
-#include <iostream>
 
 using namespace std;
 
@@ -76,7 +75,7 @@ void FrameBuffer::SetBGR(unsigned int bgr) {
 
 #pragma region 2D Shape Drawing
 
-void FrameBuffer::Set2dSegment(Vector p1, Vector p2, unsigned int col) {
+void FrameBuffer::SetSegment(Vector p1, Vector p2, unsigned int col) {
 
 	float dx = fabsf(p1[0] - p2[0]);
 	float dy = fabsf(p1[1] - p2[1]);
@@ -86,7 +85,7 @@ void FrameBuffer::Set2dSegment(Vector p1, Vector p2, unsigned int col) {
 		stepsN = (int)dy;
 	}
 	else {
-		stepsN = (int)dx;
+		stepsN = (int)dy;
 	}
 	for (int i = 0; i <= stepsN; i++) {
 		float cx = p1[0] + (p2[0] - p1[0]) / (float)stepsN * (float)i;
@@ -95,60 +94,7 @@ void FrameBuffer::Set2dSegment(Vector p1, Vector p2, unsigned int col) {
 	}
 }
 
-void FrameBuffer::Set2dRectangle(Vector origin, float width, float height, unsigned int col) {
-
-	for (int i = 0; i < width; i++) {
-		for (int j = 0; j < height; j++) {
-			Set((int) (i + origin[0]), (int) (j + origin[1]), col);
-		}
-	}
-
-}
-
-void FrameBuffer::Set2dCircle(Vector center, float radius, unsigned int col) {
-
-	float x = center[0] - radius;
-	float y = center[1] - radius;
-	float d = radius * 2;
-
-	for (int i = 0; i < d + 1; i++) {
-		for (int j = 0; j < d + 1; j++) {
-			Vector p (i + x, j + y, 0);
-			Vector c(center[0], center[1], 0.0f);
-			float len = (p - c).Length();
-
-			if (len <= radius) {
-				Set((int) p[0], (int) p[1], col);
-			}
-		}
-	}
-}
-
-void FrameBuffer::Set2dTriangle(Vector p1, Vector p2, Vector p3, unsigned int col) {
-
-	float minX = min(p1[0], min(p2[0], p3[0]));
-	float minY = min(p1[1], min(p2[1], p3[1]));
-	
-	float maxX = max(p1[0], max(p2[0], p3[0]));
-	float maxY = max(p1[1], max(p2[1], p3[1]));
-
-	float a[3] = { p2[1] - p1[1], p3[1] - p1[1], p3[1] - p2[1] };
-	float b[3] = { p2[0] - p1[0], p3[0] - p1[0], p3[0] - p2[0] };
-	float c[3] = { p1[0] * p2[1] + -p1[1] * p2[0],
-				   p1[0] * p3[1] + -p1[1] * p3[0],
-				   p2[0] * p3[1] + -p2[1] * p3[0] };
-
-	for (int i = 0; i < maxX + 1; i++) {
-		for (int j = 0; j < maxY + 1; j++) {
-			Vector p (i + minX, j + minY, 0);
-
-			if (checkEdge(p, a[0], b[0], c[0]) &&
-				checkEdge(p, a[1], b[1], c[1]) &&
-				checkEdge(p, a[2], b[2], c[2])) {
-				Set((int)p[0], (int)p[1], col);
-			}
-		}
-	}
+void FrameBuffer::DrawTriangle(Vector p1, Vector p2, Vector p3) {
 
 }
 
@@ -206,14 +152,6 @@ void FrameBuffer::SaveAsTiff(char *fname) {
 	}
 
 	TIFFClose(out);
-}
-
-#pragma endregion
-
-#pragma region Private Methods
-
-bool FrameBuffer::checkEdge(Vector p, float a, float b, float c) {
-	return (p[0] * a - p[1] * b + c) < 0;
 }
 
 #pragma endregion
