@@ -1,0 +1,145 @@
+#include "stdafx.h"
+
+#include "ppc.h"
+
+#define _USE_MATH_DEFINES 
+#include "math.h"
+
+#include "matrix.h"
+
+PPC::PPC(float hfov, int _w, int _h) {
+
+	w = _w;
+	h = _h;
+
+	C = Vector::ZERO;
+	a = Vector::XAXIS;
+	b = Vector::YAXIS * -1.0f;
+
+	float hfovd = hfov / 180.0f * 3.14159236f;
+
+	c = Vector(-(float) w / 2.0f, (float) h / 2, -(float) w / (2 * tanf(hfovd / 2.0f)));
+
+}
+
+#pragma region Projection
+
+int PPC::Project(Vector point, Vector& pointref) {
+
+	Matrix m;
+
+	m.SetColumn(0, a);
+	m.SetColumn(1, b);
+	m.SetColumn(2, c);
+
+	Vector q = m.Inverted() * (point - C);
+	float w = q[2];
+
+	if (w <= 0.0f)
+		return 0;
+
+	pointref[0] = q[0] / q[2];
+	pointref[1] = q[1] / q[2];
+	pointref[2] = 1.0f / w;
+
+	return 1;
+}
+
+Vector PPC::UnProject(Vector point) {
+
+	return C + (a * point[0] + b * point[1] + c) / point[2];
+}
+
+#pragma endregion
+
+#pragma region Camera Movement
+
+void PPC::TranslateRight(float step) {
+
+	Vector rightDir = a.Normalized();
+	C = C + rightDir * step;
+}
+
+void PPC::TranslateForward(float step) {
+
+	Vector forwDir = (a ^ b).Normalized();
+	C = C + forwDir * step;
+}
+
+void PPC::TranslateUp(float step) {
+
+	Vector upDir = b.Normalized() * -1.0f;
+	C = C + upDir * step;
+}
+
+void PPC::PanRight(float step) {
+
+	Vector adir = b.Normalized();
+	a.RotateVector(adir, step);
+	c.RotateVector(adir, step);
+}
+
+void PPC::TiltUp(float step) {
+
+	Vector bdir = a.Normalized();
+	b.RotateVector(bdir, step);
+	c.RotateVector(bdir, step);
+}
+
+void PPC::RollLeft(float step) {
+
+	Vector cdir = (a ^ b).Normalized();
+	a.RotateVector(cdir, step);
+	b.RotateVector(cdir, step);
+	c.RotateVector(cdir, step);
+}
+
+void PPC::SetPose(Vector center, Vector lookAtPoint, Vector upGuidance) {
+
+	Vector newvd = (lookAtPoint - center).Normalized();
+	Vector newa = (newvd ^ upGuidance).Normalized();
+	Vector newb = (newvd ^ newa).Normalized();
+
+	Vector newc = newvd * GetFocalLength() - newa * (float)w / 2.0f - newb * (float)h / 2.0f;
+
+	a = newa; b = newb; c = newc; C = center;
+}
+
+void PPC::Interpolate(PPC* ppcS, PPC* ppcF, int i, int n) {
+
+	float scf = (float)i / (float)(n - 1);
+	Vector newC = ppcS->C + (ppcF->C - ppcS->C) * scf;
+
+	Vector sLookAtPoint = ppcS->GetViewDirection() + ppcS->C;
+	Vector fLookAtPoint = ppcF->GetViewDirection() + ppcF->C;
+	Vector lookAtPoint = sLookAtPoint + (fLookAtPoint - sLookAtPoint) * scf;
+
+	Vector upGuidance = ppcS->b * -1.0f + (ppcF->b * -1.0f - ppcS->b * -1.0f) * scf;
+	
+	SetPose(newC, lookAtPoint, upGuidance);
+}
+
+#pragma endregion
+
+#pragma region Camera Property Methods
+
+void PPC::SetFocalLength(float focalLength) {
+
+	c = GetViewDirection() * focalLength - a * (float)w / 2.0f - b * (float)h / 2.0f;
+}
+
+float PPC::GetFocalLength() {
+
+	return GetViewDirection() * c;
+}
+
+Vector PPC::GetViewDirection() {
+
+	return (a ^ b).Normalized();
+}
+
+#pragma endregion
+
+
+
+

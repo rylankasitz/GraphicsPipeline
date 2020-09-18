@@ -86,26 +86,32 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bbox.h" />
     <ClInclude Include="framebuffer.h" />
     <ClInclude Include="glext.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="matrix.h" />
+    <ClInclude Include="ppc.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="tmesh.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="bbox.cpp" />
     <ClCompile Include="framebuffer.cpp" />
     <ClCompile Include="gui.cxx">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="ppc.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="tmesh.cpp" />
     <ClCompile Include="vector.cpp" />
   </ItemGroup>
   <ItemGroup>

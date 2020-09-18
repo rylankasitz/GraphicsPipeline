@@ -31,6 +31,9 @@ public:
 	void RotatePoint(Vector origin, Vector direction, float angle);
 	void RotateVector(Vector axis, float angle);
 
+	void SetFromColor(unsigned int color);
+	unsigned int GetColor();
+
 	float Length();
 
 private:

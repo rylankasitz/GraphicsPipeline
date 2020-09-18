@@ -13,14 +13,11 @@ public:
 private:
   inline void cb_DBG_i(Fl_Button*, void*);
   static void cb_DBG(Fl_Button*, void*);
-  inline void cb_Calculate_i(Fl_Button*, void*);
-  static void cb_Calculate(Fl_Button*, void*);
   inline void cb_Demo_i(Fl_Button*, void*);
   static void cb_Demo(Fl_Button*, void*);
 public:
   void show();
   void DBG_cb();
-  void Calculate_cb();
   void Demo_cb();
 };
 #endif

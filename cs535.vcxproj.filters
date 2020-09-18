@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Data Objects">
       <UniqueIdentifier>{0765adce-95c3-4e33-b710-135e66755109}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\3D Objects">
+      <UniqueIdentifier>{1ec6ff9b-f3a9-4f44-8cb2-40a8df5b5dbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\3D Objects">
+      <UniqueIdentifier>{e4913aa9-49be-4dd8-b812-9a76c93ed0ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framebuffer.h">
@@ -42,6 +48,15 @@
     <ClInclude Include="matrix.h">
       <Filter>Header Files\Data Objects</Filter>
     </ClInclude>
+    <ClInclude Include="ppc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tmesh.h">
+      <Filter>Header Files\3D Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="bbox.h">
+      <Filter>Header Files\3D Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scene.cpp">
@@ -61,6 +76,15 @@
     </ClCompile>
     <ClCompile Include="vector.cpp">
       <Filter>Source Files\Data Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="ppc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tmesh.cpp">
+      <Filter>Source Files\3D Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="bbox.cpp">
+      <Filter>Source Files\3D Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

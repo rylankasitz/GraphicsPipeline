@@ -16,6 +16,7 @@ FrameBuffer::FrameBuffer(int u0, int v0,
 	w = _w;
 	h = _h;
 	pix = new unsigned int[w * h];
+	zb = new float[w * h];
 
 }
 
@@ -53,6 +54,13 @@ void FrameBuffer::KeyboardHandle() {
 
 #pragma region Pixel Drawing
 
+void FrameBuffer::ClearZB() {
+
+	for (int uv = 0; uv < w * h; uv++)
+		zb[uv] = 0.0f;
+
+}
+
 void FrameBuffer::draw() {
 
 	glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, pix);
@@ -60,6 +68,9 @@ void FrameBuffer::draw() {
 }
 
 void FrameBuffer::Set(int u, int v, unsigned int color) {
+
+	if (u < 0 || u > w - 1 || v < 0 || v > h - 1)
+		return;
 
 	pix[(h - 1 - v)*w + u] = color;
 
@@ -76,7 +87,7 @@ void FrameBuffer::SetBGR(unsigned int bgr) {
 
 #pragma region 2D Shape Drawing
 
-void FrameBuffer::Set2dSegment(Vector p1, Vector p2, unsigned int col) {
+void FrameBuffer::Draw2dSegment(Vector p1, Vector p2, Vector c1, Vector c2) {
 
 	float dx = fabsf(p1[0] - p2[0]);
 	float dy = fabsf(p1[1] - p2[1]);
@@ -89,23 +100,30 @@ void FrameBuffer::Set2dSegment(Vector p1, Vector p2, unsigned int col) {
 		stepsN = (int)dx;
 	}
 	for (int i = 0; i <= stepsN; i++) {
-		float cx = p1[0] + (p2[0] - p1[0]) / (float)stepsN * (float)i;
-		float cy = p1[1] + (p2[1] - p1[1]) / (float)stepsN * (float)i;
-		Set((int)cx, (int)cy, col);
+		Vector cp, cc;
+		cp = p1 + (p2 - p1) * (float)i / (float)stepsN;
+
+		int u = (int)cp[0], v = (int)cp[1];
+
+		if (farther(u, v, cp[2]))
+			continue;
+
+		cc = c1 + (c2 - c1) * (float)i / (float)stepsN;
+
+		Set(u, v, cc.GetColor());
 	}
 }
 
-void FrameBuffer::Set2dRectangle(Vector origin, float width, float height, unsigned int col) {
+void FrameBuffer::Draw2dRectangle(Vector origin, float width, float height, unsigned int col) {
 
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < height; j++) {
 			Set((int) (i + origin[0]), (int) (j + origin[1]), col);
 		}
 	}
-
 }
 
-void FrameBuffer::Set2dCircle(Vector center, float radius, unsigned int col) {
+void FrameBuffer::Draw2dCircle(Vector center, float radius, unsigned int col) {
 
 	float x = center[0] - radius;
 	float y = center[1] - radius;
@@ -124,7 +142,11 @@ void FrameBuffer::Set2dCircle(Vector center, float radius, unsigned int col) {
 	}
 }
 
-void FrameBuffer::Set2dTriangle(Vector p1, Vector p2, Vector p3, unsigned int col) {
+void FrameBuffer::Draw2dTriangle(Vector p1, Vector p2, Vector p3, Vector c1, Vector c2, Vector c3) {
+
+	if (getTriangleArea(p1, p2, p3) < .001f) {
+		return;
+	}
 
 	float minX = min(p1[0], min(p2[0], p3[0]));
 	float minY = min(p1[1], min(p2[1], p3[1]));
@@ -132,24 +154,77 @@ void FrameBuffer::Set2dTriangle(Vector p1, Vector p2, Vector p3, unsigned int co
 	float maxX = max(p1[0], max(p2[0], p3[0]));
 	float maxY = max(p1[1], max(p2[1], p3[1]));
 
-	float a[3] = { p2[1] - p1[1], p3[1] - p1[1], p3[1] - p2[1] };
-	float b[3] = { p2[0] - p1[0], p3[0] - p1[0], p3[0] - p2[0] };
-	float c[3] = { p1[0] * p2[1] + -p1[1] * p2[0],
-				   p1[0] * p3[1] + -p1[1] * p3[0],
-				   p2[0] * p3[1] + -p2[1] * p3[0] };
+	Vector rCoff = getInterpCoffs(p1, p2, p3, Vector(c1[0], c2[0], c3[0]));
+	Vector gCoff = getInterpCoffs(p1, p2, p3, Vector(c1[1], c2[1], c3[1]));
+	Vector bCoff = getInterpCoffs(p1, p2, p3, Vector(c1[2], c2[2], c3[2]));
+	Vector zCoff = getInterpCoffs(p1, p2, p3, Vector(p1[2], p2[2], p3[2]));
 
-	for (int i = 0; i < maxX + 1; i++) {
-		for (int j = 0; j < maxY + 1; j++) {
-			Vector p (i + minX, j + minY, 0);
+	float x[3] = { p1[0], p2[0], p3[0] };
+	float y[3] = { p1[1], p2[1], p3[1] };
+
+	float a[3], b[3], c[3];
+	for (int i = 0; i < 3; i++) {
+		int j = (i + 1) % 3;
+		int k = (j + 1) % 3;
+
+		a[i] = y[j] - y[i];
+		b[i] = -x[j] + x[i];
+		c[i] = y[j] * -x[i] + x[j] * y[i];
+
+		float sideness = a[i] * x[k] + b[i] * y[k] + c[i];
+
+		if (sideness < 0) {
+			a[i] = -a[i]; b[i] = -b[i]; c[i] = -c[i];
+		}
+	}
+
+	for (int i = minX; i < maxX; i++) {
+		for (int j = minY; j < maxY; j++) {
+			Vector p (i, j, 1);
 
 			if (checkEdge(p, a[0], b[0], c[0]) &&
 				checkEdge(p, a[1], b[1], c[1]) &&
 				checkEdge(p, a[2], b[2], c[2])) {
-				Set((int)p[0], (int)p[1], col);
+
+				float z = zCoff * p;
+				if (farther(p[0], p[1], z))
+					continue;
+
+				Vector col = Vector(rCoff * p, gCoff * p, bCoff * p);
+
+				Set((int)p[0], (int)p[1], col.GetColor());
 			}
 		}
 	}
 
+}
+
+#pragma endregion
+
+#pragma region 3D Shape Drawing
+
+void FrameBuffer::Draw3dTriangle(Vector point1, Vector point2, Vector point3, Vector color1, Vector color2, Vector color3, PPC* ppc) {
+
+	Vector point1Ref, point2Ref, point3Ref;
+	if (!ppc->Project(point1, point1Ref))
+		return;
+	if (!ppc->Project(point2, point2Ref))
+		return;
+	if (!ppc->Project(point3, point3Ref))
+		return;
+
+	Draw2dTriangle(point1Ref, point2Ref, point3Ref, color1, color2, color3);
+}
+
+void FrameBuffer::Draw3dSegment(Vector point1, Vector point2, PPC* ppc, Vector color1, Vector color2) {
+
+	Vector point1Ref, point2Ref;
+	if (!ppc->Project(point1, point1Ref))
+		return;
+	if (!ppc->Project(point2, point2Ref))
+		return;
+
+	Draw2dSegment(point1Ref, point2Ref, color1, color2);
 }
 
 #pragma endregion
@@ -213,7 +288,34 @@ void FrameBuffer::SaveAsTiff(char *fname) {
 #pragma region Private Methods
 
 bool FrameBuffer::checkEdge(Vector p, float a, float b, float c) {
-	return (p[0] * a - p[1] * b + c) < 0;
+	return (p[0] * a + p[1] * b + c) >= 0;
+}
+
+int FrameBuffer::farther(int u, int v, float currz) {
+
+	if (u < 0 || u > w - 1 || v < 0 || v > h - 1)
+		return 1;
+
+	int uv = (h - 1 - v) * w + u;
+	if (currz < zb[uv])
+		return 1;
+
+	zb[uv] = currz;
+	return 0;
+}
+
+Vector FrameBuffer::getInterpCoffs(Vector p1, Vector p2, Vector p3, Vector c) {
+
+	Matrix m = Matrix();
+	m[0] = Vector(p1[0], p1[1], 1.0f);
+	m[1] = Vector(p2[0], p2[1], 1.0f);
+	m[2] = Vector(p3[0], p3[1], 1.0f);
+
+	return m.Inverted() * c;
+}
+
+float FrameBuffer::getTriangleArea(Vector a, Vector b, Vector c) {
+	return fabsf((a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1])) / 2.0f);
 }
 
 #pragma endregion

@@ -180,6 +180,36 @@ void Vector::RotateVector(Vector axis, float angle) {
 
 #pragma endregion Preforms vector operations
 
+#pragma region Graphics Operations
+
+void Vector::SetFromColor(unsigned int color) {
+
+	unsigned char* rgb = (unsigned char*)&color;
+	Vector& v = *this;
+
+	v[0] = (float)(rgb[0]) / 255.0f;
+	v[1] = (float)(rgb[1]) / 255.0f;
+	v[2] = (float)(rgb[2]) / 255.0f;
+
+}
+
+unsigned int Vector::GetColor() {
+
+	unsigned int ret;
+	Vector& v = *this;
+	unsigned char rgb[3];
+
+	rgb[0] = (unsigned char)(255.0f * v[0]);
+	rgb[1] = (unsigned char)(255.0f * v[1]);
+	rgb[2] = (unsigned char)(255.0f * v[2]);
+
+	ret = 0xFF000000 + rgb[2] * 256 * 256 + rgb[1] * 256 + rgb[0];
+
+	return ret;
+}
+
+#pragma endregion
+
 #pragma region Private Methods
 
 #pragma endregion
