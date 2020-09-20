@@ -3,6 +3,8 @@
 #include "framebuffer.h"
 #include "math.h"
 #include "scene.h"
+#include "vector.h"
+#include "matrix.h"
 
 #include <tiffio.h>
 #include <algorithm>  
@@ -23,31 +25,7 @@ FrameBuffer::FrameBuffer(int u0, int v0,
 #pragma region Input Handling
 
 int FrameBuffer::handle(int event) {
-
-	switch (event)
-	{
-	case FL_KEYBOARD: {
-		KeyboardHandle();
-		return 0;
-	}
-	default:
-		break;
-	}
-	return 0;
-}
-
-void FrameBuffer::KeyboardHandle() {
-
-	int key = Fl::event_key();
-
-	switch (key) {
-	case FL_Up: {
-		cerr << "INFO: pressed up key";
-		break;
-	}
-	default:
-		cerr << "INFO: do not understand keypress" << endl;
-	}
+	return InputHandler::event_handler(event);
 }
 
 #pragma endregion
@@ -148,16 +126,20 @@ void FrameBuffer::Draw2dTriangle(Vector p1, Vector p2, Vector p3, Vector c1, Vec
 		return;
 	}
 
-	float minX = min(p1[0], min(p2[0], p3[0]));
-	float minY = min(p1[1], min(p2[1], p3[1]));
-	
-	float maxX = max(p1[0], max(p2[0], p3[0]));
-	float maxY = max(p1[1], max(p2[1], p3[1]));
+	float minX = clamp(min(p1[0], min(p2[0], p3[0])), 0, w);
+	float minY = clamp(min(p1[1], min(p2[1], p3[1])), 0, h);
+	float maxX = clamp(max(p1[0], max(p2[0], p3[0])), 0, w);
+	float maxY = clamp(max(p1[1], max(p2[1], p3[1])), 0, h);
+	float minZ = min({ p1[2], p2[2], p3[2] });
+	float maxZ = max({ p1[2], p2[2], p3[2] });
 
 	Vector rCoff = getInterpCoffs(p1, p2, p3, Vector(c1[0], c2[0], c3[0]));
 	Vector gCoff = getInterpCoffs(p1, p2, p3, Vector(c1[1], c2[1], c3[1]));
 	Vector bCoff = getInterpCoffs(p1, p2, p3, Vector(c1[2], c2[2], c3[2]));
 	Vector zCoff = getInterpCoffs(p1, p2, p3, Vector(p1[2], p2[2], p3[2]));
+
+	Vector mins = Vector(min({ c1[0], c2[0], c3[0] }), min({ c1[1], c2[1], c3[1] }), min({ c1[2], c2[2], c3[2] }));
+	Vector maxs = Vector(max({ c1[0], c2[0], c3[0] }), max({ c1[1], c2[1], c3[1] }), max({ c1[2], c2[2], c3[2] }));
 
 	float x[3] = { p1[0], p2[0], p3[0] };
 	float y[3] = { p1[1], p2[1], p3[1] };
@@ -187,10 +169,11 @@ void FrameBuffer::Draw2dTriangle(Vector p1, Vector p2, Vector p3, Vector c1, Vec
 				checkEdge(p, a[2], b[2], c[2])) {
 
 				float z = zCoff * p;
-				if (farther(p[0], p[1], z))
+				if (farther(p[0], p[1], clamp(z, minZ, maxZ)))
 					continue;
 
 				Vector col = Vector(rCoff * p, gCoff * p, bCoff * p);
+				col.Clamp(mins, maxs);
 
 				Set((int)p[0], (int)p[1], col.GetColor());
 			}
@@ -225,6 +208,26 @@ void FrameBuffer::Draw3dSegment(Vector point1, Vector point2, PPC* ppc, Vector c
 		return;
 
 	Draw2dSegment(point1Ref, point2Ref, color1, color2);
+}
+
+void FrameBuffer::Draw3DPoint(Vector point, PPC* ppc, unsigned int color, int psize) {
+
+	Vector pointRef;
+	if (!ppc->Project(point, pointRef))
+		return;
+
+	int u = (int)pointRef[0];
+	int v = (int)pointRef[1];
+
+	for (int cv = v - psize / 2; cv <= v + psize / 2; cv++) {
+		for (int cu = u - psize / 2; cu <= u + psize / 2; cu++) {
+			if (farther(cu, cv, pointRef[2]))
+				continue;
+
+			Set(cu, cv, color);
+		}
+	}
+
 }
 
 #pragma endregion

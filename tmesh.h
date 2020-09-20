@@ -1,6 +1,5 @@
 #pragma once
 
-#include "vector.h"
 #include "ppc.h"
 #include "framebuffer.h"
 #include "bbox.h";

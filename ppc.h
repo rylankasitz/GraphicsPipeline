@@ -1,5 +1,6 @@
 #pragma once
 
+#include "worldview.h"
 #include "vector.h"
 
 class PPC {
@@ -23,6 +24,8 @@ public:
 	void SetFocalLength(float focalLength);
 	float GetFocalLength();
 	Vector GetViewDirection();
+
+	void Visualize(WorldView* wv, float vf);
 
 private:
 	Vector a, b, c, C;

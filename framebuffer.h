@@ -1,21 +1,20 @@
 #pragma once
 
-#include "vector.h";
-#include "matrix.h";
-#include "ppc.h";
-
 #include <FL/Fl.H>
 #include <FL/Fl_Gl_Window.H>
 #include <GL/glut.h>
+
+class PPC;
+class Vector;
 
 class FrameBuffer : public Fl_Gl_Window {
 public:
 	unsigned int *pix; // pixel array
 	float* zb;
 	int w, h;
+
 	FrameBuffer(int u0, int v0, int _w, int _h, unsigned int _id);
 
-	void KeyboardHandle();
 	int handle(int guievent);
 
 	void draw();
@@ -30,6 +29,7 @@ public:
 
 	void Draw3dSegment(Vector point1, Vector point2, PPC* ppc, Vector color1, Vector color2);
 	void Draw3dTriangle(Vector point1, Vector point2, Vector point3, Vector color1, Vector color2, Vector color3, PPC* ppc);
+	void Draw3DPoint(Vector point, PPC* ppc, unsigned int color, int psize);
 
 	void LoadTiff(char* fname);
 	void SaveAsTiff(char *fname);

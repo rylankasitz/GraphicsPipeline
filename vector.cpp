@@ -178,6 +178,16 @@ void Vector::RotateVector(Vector axis, float angle) {
 	z = v[2];
 }
 
+float clamp(float value, float minV, float maxV) {
+	return max(minV, min(maxV, value));
+}
+
+void Vector::Clamp(Vector mins, Vector maxs) {
+	x = clamp(x, mins[0], maxs[0]);
+	y = clamp(y, mins[1], maxs[1]);
+	z = clamp(z, mins[2], maxs[2]);
+}
+
 #pragma endregion Preforms vector operations
 
 #pragma region Graphics Operations

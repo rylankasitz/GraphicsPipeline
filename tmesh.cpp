@@ -5,7 +5,6 @@
 
 #include "TMesh.h"
 
-
 void TMesh::Allocate(int _vertsN, int _trisN) {
 
 	verticesN = _vertsN;

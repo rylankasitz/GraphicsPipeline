@@ -90,12 +90,14 @@
     <ClInclude Include="framebuffer.h" />
     <ClInclude Include="glext.h" />
     <ClInclude Include="gui.h" />
+    <ClInclude Include="inputhandler.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="ppc.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="tmesh.h" />
     <ClInclude Include="vector.h" />
+    <ClInclude Include="worldview.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bbox.cpp" />
@@ -104,6 +106,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="inputhanlder.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="ppc.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -113,6 +116,7 @@
     </ClCompile>
     <ClCompile Include="tmesh.cpp" />
     <ClCompile Include="vector.cpp" />
+    <ClCompile Include="worldview.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CG\shaderOne.cg" />

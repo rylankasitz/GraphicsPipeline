@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "scene.h"
 
 Scene *scene;
@@ -12,28 +11,30 @@ using namespace std;
 Scene::Scene() {
 
 	int u0 = 20;
-	int v0 = 20;
-	int h = 480;
-	int w = 640;
+	int v0 = 40;
+	int h = 800;
+	int w = 1200;
 
 	meshCount = 5;
-	cameraCount = 3;
+	viewCount = 1;
 
 	gui = new GUI();
 	gui->show();
-	gui->uiw->position(u0, v0 + h + 50);
-
-	fb = new FrameBuffer(u0, v0, w, h, 0);
-	fb->label("SW frame buffer");
-	fb->SetBGR(0xFFFFFFFF);
-	fb->show();
-	fb->redraw();
+	gui->uiw->position(u0 + w + 50, v0);
 
 	meshes = new TMesh[meshCount];
-	cameras = new PPC*[cameraCount];
+	views = new WorldView*[viewCount];
 
-	mainCamera = new PPC(90.0f, fb->w, fb->h);
-	cameras[0] = mainCamera;
+	worldView = new WorldView(0, u0, v0, w, h, 90.0f, "Main");
+	worldView->ppc->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
+	worldView->ppc->SetFocalLength(800);
+	worldView->Show();
+
+	InputHandler::Instatiate(worldView);
+
+	views[0] = new WorldView(0, u0, v0, w, h, 90.0f, "Test");
+	views[0]->ppc->SetPose(Vector(100, 100, 0), Vector::ZERO, Vector::YAXIS);
+	views[0]->ppc->SetFocalLength(800);
 
 	Load();
 	Render();
@@ -46,9 +47,6 @@ void Scene::Load() {
 	TMesh teapot1k2 = TMesh();
 	TMesh teapot1k3 = TMesh();
 	TMesh bunny = TMesh();
-
-	PPC* camera1 = new PPC(90.0f, fb->w, fb->h);
-	PPC* camera2 = new PPC(90.0f, fb->w, fb->h);
 
 	teapot1k1.LoadBin("geometry/teapot1k.bin");
 	teapot57k.LoadBin("geometry/teapot57k.bin");
@@ -73,13 +71,13 @@ void Scene::Load() {
 	meshes[2] = teapot1k3;
 	meshes[3] = teapot57k;
 	meshes[4] = bunny;
+}
 
-	cameras[1] = camera1;
-	cameras[2] = camera2;
+void Scene::Render() {
 
-	mainCamera->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
-	camera1->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
-	camera2->SetPose(Vector(50, 100, 50), Vector::ZERO, Vector::YAXIS);
+	Fl::check();
+
+	worldView->Render(meshes, meshCount, views, viewCount);
 }
 
 void Scene::DBG() {
@@ -87,37 +85,14 @@ void Scene::DBG() {
 
 	mesh.LoadBin("geometry/teapot57k.bin");
 	mesh.SetCenter(Vector(0, 0, 0));
-	//mesh.SetScale(400);
-	mesh.DrawMode = DrawMode::Filled;
-	mainCamera->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
-	PPC* camera1 = new PPC(90.0f, fb->w, fb->h);
-	PPC* camera2 = new PPC(90.0f, fb->w, fb->h);
-	camera2->SetPose(Vector(100, 100, 100), Vector::ZERO, Vector::YAXIS);
-	//mesh.SetToCube(Vector(0, 0, -100), 100, 0xFFFF0000, 0xFF000000);
-
-	meshes[0] = mesh;
-	//camera1->SetPose(Vector(100, 100, 0), mesh.GetCenter(), Vector::YAXIS);
 
 	for (int i = 0; i < 360; i++) {
-		//camera->RollLeft(1.0f);
-		//meshes[0].Translate(Vector::XAXIS);
-		//meshes[0].Rotate(meshes[0].GetCenter(), Vector::YAXIS, 1);
-		mainCamera->Interpolate(camera1, camera2, i, 360);
+
 		Fl::check();
 		Render();
 	}
 }
 
-void Scene::Render() {
-	fb->SetBGR(0xFFFFFFFF);
-	fb->ClearZB();
-
-	for (int i = 0; i < meshCount; i++) {
-		meshes[i].DrawMesh(fb, mainCamera);
-	}
-
-	fb->redraw();
-}
 
 
 void Scene::Demo() {
@@ -125,14 +100,6 @@ void Scene::Demo() {
 
 	for (int i = 0; i < steps; i++) {
 		
-		if (i >= (steps / 2 - 1))
-			mainCamera->Interpolate(cameras[1], cameras[2], i - (steps / 2 - 1), steps / 2);
-
-		meshes[0].Rotate(meshes[0].GetCenter(), Vector(1, 1, 0), 1);
-		meshes[1].Rotate(Vector::ZERO, Vector::YAXIS, 1);
-		meshes[2].Rotate(Vector::ZERO, Vector::ZAXIS, 1.5f);
-		meshes[3].Rotate(Vector::ZERO, Vector::XAXIS, 2.0f);
-		meshes[4].Rotate(meshes[4].GetCenter(), Vector::YAXIS, 1);
 
 		Fl::check();
 		Render();
@@ -142,6 +109,6 @@ void Scene::Demo() {
 		string out = "animations/rotation_";
 		out += to_string(i);
 		out += ".tif";
-		fb->SaveAsTiff((char *) out.c_str());
+		worldView->fb->SaveAsTiff((char *) out.c_str());
 	}
 }

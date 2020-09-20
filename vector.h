@@ -4,6 +4,8 @@
 
 using namespace std;
 
+float clamp(float value, float min, float max);
+
 class Vector {
 public:
 	static Vector XAXIS;
@@ -30,6 +32,7 @@ public:
 	Vector Normalized();
 	void RotatePoint(Vector origin, Vector direction, float angle);
 	void RotateVector(Vector axis, float angle);
+	void Clamp(Vector mins, Vector maxs);
 
 	void SetFromColor(unsigned int color);
 	unsigned int GetColor();

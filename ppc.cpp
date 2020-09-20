@@ -1,11 +1,10 @@
 #include "stdafx.h"
 
 #include "ppc.h"
+#include "matrix.h"
 
 #define _USE_MATH_DEFINES 
 #include "math.h"
-
-#include "matrix.h"
 
 PPC::PPC(float hfov, int _w, int _h) {
 
@@ -140,6 +139,30 @@ Vector PPC::GetViewDirection() {
 
 #pragma endregion
 
+#pragma region Camera Visualization
 
+void PPC::Visualize(WorldView *wv, float vf) {
+	
+	unsigned int color = 0xFF000000;
+	Vector c1; c1.SetFromColor(color);
 
+	wv->fb->Draw3DPoint(C, wv->ppc, color, 7);
 
+	Vector imageCorners[4];
+	float _w = GetFocalLength() / vf;
+
+	imageCorners[0] = UnProject(Vector(0.0f, 0.0f, _w));
+	imageCorners[1] = UnProject(Vector(0.0f, (float)h, _w));
+	imageCorners[2] = UnProject(Vector((float)w, (float)h, _w));
+	imageCorners[3] = UnProject(Vector((float)w, 0.0f, _w));
+
+	Vector c0; c0.SetFromColor(0xFF0000FF);
+
+	for (int i = 0; i < 4; i++) {
+		wv->fb->Draw3dSegment(imageCorners[i], imageCorners[(i + 1) % 4], wv->ppc, c0, c0);
+	}
+
+	wv->fb->Draw3dSegment(C, imageCorners[0], wv->ppc, c1, c0);
+}
+
+#pragma endregion

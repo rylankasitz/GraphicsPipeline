@@ -25,6 +25,12 @@
     <Filter Include="Header Files\3D Objects">
       <UniqueIdentifier>{e4913aa9-49be-4dd8-b812-9a76c93ed0ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Event Handlers">
+      <UniqueIdentifier>{8544b0f7-9e5c-498e-b1ba-a24182668bd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Event Hanlders">
+      <UniqueIdentifier>{13c1ddee-a868-47ff-b472-3923e5485de6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framebuffer.h">
@@ -57,6 +63,12 @@
     <ClInclude Include="bbox.h">
       <Filter>Header Files\3D Objects</Filter>
     </ClInclude>
+    <ClInclude Include="worldview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inputhandler.h">
+      <Filter>Header Files\Event Handlers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scene.cpp">
@@ -85,6 +97,12 @@
     </ClCompile>
     <ClCompile Include="bbox.cpp">
       <Filter>Source Files\3D Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="worldview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="inputhanlder.cpp">
+      <Filter>Source Files\Event Hanlders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -6,18 +6,19 @@
 #include "matrix.h"
 #include "tmesh.h"
 #include "ppc.h"
+#include "worldview.h"
+#include "inputhandler.h";
 
 class Scene {
 public:
 
 	GUI *gui;
-	FrameBuffer *fb;
+	WorldView** views;
+	WorldView *worldView;
 	TMesh *meshes;
-	PPC *mainCamera;
-	PPC** cameras;
 
 	int meshCount;
-	int cameraCount;
+	int viewCount;
 
 	Scene();
 
