@@ -5,12 +5,14 @@
 class BBox
 {
 public:
-	Vector Min, Max;
+	Vector Corners[2];
 	float Size;
 
-	BBox();
+	BBox(Vector point);
 	
-	void SetBBox(Vector min, Vector max);
+	void AddPoint(Vector point);
+
+	bool ClipWithFrame(int w, int h);
 
 private:
 };

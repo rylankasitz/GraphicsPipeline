@@ -27,6 +27,9 @@ public:
 
 	void Visualize(WorldView* wv, float vf);
 
+	void Save(const char* textfile);
+	void Load(const char* textfile);
+
 private:
 	Vector a, b, c, C;
 	int w, h;

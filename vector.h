@@ -4,6 +4,8 @@
 
 using namespace std;
 
+class Matrix;
+
 float clamp(float value, float min, float max);
 
 class Vector {
@@ -33,9 +35,13 @@ public:
 	void RotatePoint(Vector origin, Vector direction, float angle);
 	void RotateVector(Vector axis, float angle);
 	void Clamp(Vector mins, Vector maxs);
+	void Clamp(Matrix values);
 
 	void SetFromColor(unsigned int color);
 	unsigned int GetColor();
+
+	float GetMin();
+	float GetMax();
 
 	float Length();
 

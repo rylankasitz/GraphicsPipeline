@@ -4,6 +4,8 @@
 #include "framebuffer.h"
 #include "bbox.h";
 
+class Matrix;
+
 enum class DrawMode { WireFrame, Filled };
 
 class TMesh {
@@ -12,11 +14,11 @@ public:
 	#pragma region Properties
 
 	DrawMode DrawMode = DrawMode::Filled;
-	BBox BBox;
+	BBox BoundingBox;
 
 	#pragma endregion
 
-	TMesh() : vertices(0), colors(0), normals(0), verticesN(0), tris(0), trisN(0) {};
+	TMesh() : vertices(0), colors(0), normals(0), verticesN(0), tris(0), trisN(0), BoundingBox(Vector::ZERO) {};
 	void Allocate(int _vertsN, int _trisN);
 
 	void DrawMesh(FrameBuffer* fb, PPC* ppc);

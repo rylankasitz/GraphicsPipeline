@@ -164,8 +164,51 @@ void Matrix::SetRotationMatrixZ(float radians) {
 	r2 = Vector(0, 0, 1);
 }
 
+Matrix Matrix::GetEdgeEQS() {
+	Matrix ret;
+
+	Vector pvs[3];
+	pvs[0] = r0;
+	pvs[1] = r1;
+	pvs[2] = r2;
+
+	for (int i = 0; i < 3; i++) {
+		ret[i] = getEdgeEQ(pvs[i], pvs[(i + 1) % 3], pvs[(i + 2) % 3]);
+	}
+
+	return ret;
+}
+
+Matrix Matrix::GetSSIM() {
+
+	Matrix ret = (*this);
+	ret.SetColumn(2, Vector(1.0f, 1.0f, 1.0f));
+
+	return ret.Inverted();
+}
+
 #pragma endregion Preforms matrix operations
 
 #pragma region Private Methods
+
+Vector Matrix::getEdgeEQ(Vector v1, Vector v2, Vector v3) {
+
+	float x0, x1, y0, y1;
+	x0 = v1[0];
+	x1 = v2[0];
+	y0 = v1[1];
+	y1 = v2[1];
+
+	Vector ret;
+	ret[0] = y1 - y0;
+	ret[1] = x0 - x1;
+	ret[2] = x0 * (y0 - y1) + y0 * (x1 - x0);
+
+	Vector v2p(v3); v2p[2] = 1.0f;
+	if ((ret * v2p) < 0.0f)
+		ret = ret * -1.0f;
+
+	return ret;
+}
 
 #pragma endregion

@@ -6,6 +6,10 @@
 #define _USE_MATH_DEFINES 
 #include "math.h"
 
+#include <iostream>
+#include <fstream>
+#include <string>
+
 PPC::PPC(float hfov, int _w, int _h) {
 
 	w = _w;
@@ -163,6 +167,35 @@ void PPC::Visualize(WorldView *wv, float vf) {
 	}
 
 	wv->fb->Draw3dSegment(C, imageCorners[0], wv->ppc, c1, c0);
+}
+
+#pragma endregion
+
+#pragma region Save/Load
+
+void PPC::Save(const char* textfile) {
+
+	ofstream file (textfile);
+	if (file.is_open()) {
+		file << a << "\n" << b << "\n" << c << "\n" << C << endl;
+		file.close();
+	}
+	else {
+		cerr << "Unable to save file " << textfile << endl;
+	}
+}
+
+
+void PPC::Load(const char* textfile) {
+
+	string line;
+	ifstream file(textfile);
+	if (file.is_open()) {
+		
+		file >> a; file >> b; file >> c; file >> C;
+
+		file.close();
+	}
 }
 
 #pragma endregion

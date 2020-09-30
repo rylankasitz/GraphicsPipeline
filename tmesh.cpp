@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "TMesh.h"
+#include "matrix.h"
 
 void TMesh::Allocate(int _vertsN, int _trisN) {
 
@@ -11,7 +12,7 @@ void TMesh::Allocate(int _vertsN, int _trisN) {
 	trisN = _trisN;
 	vertices = new Vector[verticesN];
 	tris = new unsigned int[trisN * 3];
-	BBox = BBox::BBox();
+	BoundingBox = BBox(Vector::ZERO);
 }
 
 void TMesh::DrawMesh(FrameBuffer* fb, PPC* ppc) {
@@ -40,16 +41,16 @@ void TMesh::SetScale(float size) {
 
 	for (int i = 0; i < verticesN; i++) {
 		vertices[i] = vertices[i] - center;
-		vertices[i] = vertices[i] * (size / BBox.Size);
+		vertices[i] = vertices[i] * (size / BoundingBox.Size);
 		vertices[i] = vertices[i] + center;
 	}
 
-	BBox.Size = size;
+	BoundingBox.Size = size;
 }
 
 float TMesh::GetScale() {
 
-	return BBox.Size;
+	return BoundingBox.Size;
 }
 
 void TMesh::Translate(Vector translation) {
@@ -226,7 +227,7 @@ void TMesh::LoadBin(char* fname) {
 	computeBBox();
 	computeCenter();
 
-	cerr << "INFO: loaded " << verticesN << " verts, " << trisN << " tris with size of " << BBox.Size << " from " << endl;
+	cerr << "INFO: loaded " << verticesN << " verts, " << trisN << " tris with size of " << BoundingBox.Size << " from " << endl;
 	cerr << "      " << fname << endl;
 	cerr << "      xyz " << ((colors) ? "rgb " : "") << ((normals) ? "nxnynz " : "") << ((tcs) ? "tcstct " : "") << endl;
 }
@@ -265,17 +266,69 @@ void TMesh::drawWireFrame(FrameBuffer* fb, PPC* ppc) {
 
 void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc) {
 
-	for (int i = 0; i < trisN; i++) {
-		Vector v1 = vertices[tris[3 * i + 0]];
-		Vector v2 = vertices[tris[3 * i + 1]];
-		Vector v3 = vertices[tris[3 * i + 2]];
-
-		Vector c1 = colors[tris[3 * i + 0]];
-		Vector c2 = colors[tris[3 * i + 1]];
-		Vector c3 = colors[tris[3 * i + 2]];
-
-		fb->Draw3dTriangle(v1, v2, v3, c1, c2, c3, ppc);
+	Vector* pverts = new Vector[verticesN];
+	for (int vi = 0; vi < verticesN; vi++) {
+		if (!ppc->Project(vertices[vi], pverts[vi]))
+			pverts[vi] = Vector(FLT_MAX, FLT_MAX, FLT_MAX);
 	}
+
+	for (int tri = 0; tri < trisN; tri++) {
+		unsigned int vinds[3] = { tris[3 * tri + 0], tris[3 * tri + 1], tris[3 * tri + 2] };
+
+		if (pverts[vinds[0]][0] == FLT_MAX ||
+			pverts[vinds[1]][0] == FLT_MAX ||
+			pverts[vinds[2]][0] == FLT_MAX)
+			continue;
+
+		BBox bbox(pverts[vinds[0]]);
+		bbox.AddPoint(pverts[vinds[1]]);
+		bbox.AddPoint(pverts[vinds[2]]);
+		
+		if (!bbox.ClipWithFrame(fb->w, fb->h))
+			continue;
+
+
+		int left = (int)(bbox.Corners[0][0] + .5f);
+		int right = (int)(bbox.Corners[1][0] - .5f);
+		int top = (int)(bbox.Corners[0][1] + .5f);
+		int bottom = (int)(bbox.Corners[1][1] - .5f);
+
+		Matrix vertsm (pverts[vinds[0]], pverts[vinds[1]], pverts[vinds[2]]);
+
+		float minZ = vertsm.GetColumn(2).GetMin();
+		float maxZ = vertsm.GetColumn(2).GetMax();
+
+		Matrix cm = Matrix(colors[vinds[0]], colors[vinds[1]], colors[vinds[2]]).Transposed();
+		Matrix eeqsm = vertsm.GetEdgeEQS();
+		Matrix ssim = vertsm.GetSSIM();
+
+		Matrix cme;
+		cme[0] = ssim * cm[0];
+		cme[1] = ssim * cm[1];
+		cme[2] = ssim * cm[2];
+
+		Vector ze = ssim * Vector(pverts[vinds[0]][2], pverts[vinds[1]][2], pverts[vinds[2]][2]);
+
+		for (int v = top; v <= bottom; v++) {
+			for (int u = left; u <= right; u++) {
+				Vector currentPix(.5f + (float)u, .5f + (float)v, 1.0f);
+				Vector side = eeqsm * currentPix;
+
+				if (side[0] < 0.0f || side[1] < 0.0f || side[2] < 0.0f)
+					continue; // outside of triangle
+
+				float currentZ = ze * currentPix;
+				if (fb->Farther(u, v, clamp(currentZ, minZ, maxZ)))
+					continue; // behind another triangle
+				
+				Vector color = cme * currentPix;
+				color.Clamp(cm);
+				fb->Set(u, v, color.GetColor());
+			}
+		}
+	}
+
+	delete []pverts;
 }
 
 #pragma endregion
@@ -284,19 +337,10 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc) {
 
 void TMesh::computeBBox() {
 
-	Vector min = vertices[0], max = vertices[0];
+	BoundingBox = BBox(vertices[0]);
 	for (int i = 0; i < verticesN; i++) {
-		for (int j = 0; j < 3; j++) {
-			if (vertices[i][j] < min[j]) {
-				min[j] = vertices[i][j];
-			}
-			if (vertices[i][j] > max[j]) {
-				max[j] = vertices[i][j];
-			}
-		}
+		BoundingBox.AddPoint(vertices[i]);
 	}
-
-	BBox.SetBBox(min, max);
 }
 
 void TMesh::computeCenter() {

@@ -5,6 +5,7 @@
 #include "math.h"
 
 #include <iostream>
+#include <algorithm>  
 #include "matrix.h"
 
 Vector Vector::XAXIS = Vector(1, 0, 0);
@@ -96,7 +97,7 @@ Vector Vector::operator/(float s) {
 
 ostream& operator<<(ostream& strm, const Vector v) {
 
-	return strm << "[" << v[0] << ", " << v[1] << ", " << v[2] << "]";
+	return strm << v[0] << " " << v[1] << " " << v[2];
 
 }
 
@@ -179,13 +180,35 @@ void Vector::RotateVector(Vector axis, float angle) {
 }
 
 float clamp(float value, float minV, float maxV) {
+
 	return max(minV, min(maxV, value));
 }
 
 void Vector::Clamp(Vector mins, Vector maxs) {
+
 	x = clamp(x, mins[0], maxs[0]);
 	y = clamp(y, mins[1], maxs[1]);
 	z = clamp(z, mins[2], maxs[2]);
+}
+
+void Vector::Clamp(Matrix values) {
+
+	Vector mins = Vector(min({ values[0][0], values[0][1], values[0][2] }), 
+		min({ values[1][0], values[1][1], values[1][2] }),
+		min({ values[2][0], values[2][1], values[2][2] }));
+	Vector maxs = Vector(max({ values[0][0], values[0][1], values[0][2] }),
+		max({ values[1][0], values[1][1], values[1][2] }),
+		max({ values[2][0], values[2][1], values[2][2] }));
+
+	Clamp(mins, maxs);
+}
+
+float Vector::GetMin() {
+	return min({ x, y, z });
+}
+
+float Vector::GetMax() {
+	return max({ x, y, z });
 }
 
 #pragma endregion Preforms vector operations

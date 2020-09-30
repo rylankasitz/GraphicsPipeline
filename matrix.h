@@ -25,7 +25,12 @@ public:
 	void SetRotationMatrixY(float radians);
 	void SetRotationMatrixZ(float radians);
 
+	Matrix GetEdgeEQS();
+	Matrix GetSSIM();
+
 private:
 	Vector r0, r1, r2;
 	int rows, cols;
+
+	Vector getEdgeEQ(Vector v1, Vector v2, Vector v3);
 };

@@ -16,7 +16,7 @@ Scene::Scene() {
 	int w = 1200;
 
 	meshCount = 5;
-	viewCount = 1;
+	viewCount = 3;
 
 	gui = new GUI();
 	gui->show();
@@ -32,9 +32,17 @@ Scene::Scene() {
 
 	InputHandler::Instatiate(worldView);
 
-	views[0] = new WorldView(0, u0, v0, w, h, 90.0f, "Test");
+	views[0] = new WorldView(0, u0 + w + 50, v0 + 200, 720, 405, 90.0f, "Demo");
 	views[0]->ppc->SetPose(Vector(100, 100, 0), Vector::ZERO, Vector::YAXIS);
-	views[0]->ppc->SetFocalLength(800);
+	views[0]->ppc->SetFocalLength(400);
+
+	views[1] = new WorldView(0, u0 + w + 50, v0 + 200, 720, 405, 90.0f, "Interp1");
+	views[1]->ppc->SetPose(Vector(100, 100, 0), Vector::ZERO, Vector::YAXIS);
+	views[1]->ppc->SetFocalLength(400);
+
+	views[2] = new WorldView(0, u0 + w + 50, v0 + 200, 720, 405, 90.0f, "Interp2");
+	views[2]->ppc->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
+	views[2]->ppc->SetFocalLength(400);
 
 	Load();
 	Render();
@@ -78,6 +86,7 @@ void Scene::Render() {
 	Fl::check();
 
 	worldView->Render(meshes, meshCount, views, viewCount);
+	views[0]->Render(meshes, meshCount, views, 0);
 }
 
 void Scene::DBG() {
@@ -98,8 +107,18 @@ void Scene::DBG() {
 void Scene::Demo() {
 	int steps = 300;
 
+	views[0]->Show();
+
 	for (int i = 0; i < steps; i++) {
 		
+		if (i >= ((steps / 2) - 1))
+			views[0]->ppc->Interpolate(views[1]->ppc, views[2]->ppc, i - ((steps / 2) - 1), steps / 2);
+
+		meshes[0].Rotate(Vector::ZERO, Vector::YAXIS, 1);
+		meshes[1].Rotate(Vector::ZERO, Vector::ZAXIS, 1);
+		meshes[2].Rotate(Vector::ZERO, Vector::XAXIS, 1);
+		meshes[3].Rotate(Vector::ZERO, Vector::YAXIS, 1);
+		meshes[4].Rotate(Vector::ZERO, Vector::YAXIS, 1);
 
 		Fl::check();
 		Render();
@@ -109,6 +128,6 @@ void Scene::Demo() {
 		string out = "animations/rotation_";
 		out += to_string(i);
 		out += ".tif";
-		worldView->fb->SaveAsTiff((char *) out.c_str());
+		views[0]->fb->SaveAsTiff((char *) out.c_str());
 	}
 }
