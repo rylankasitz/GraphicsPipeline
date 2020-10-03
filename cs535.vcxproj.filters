@@ -69,6 +69,9 @@
     <ClInclude Include="inputhandler.h">
       <Filter>Header Files\Event Handlers</Filter>
     </ClInclude>
+    <ClInclude Include="pointlight.h">
+      <Filter>Header Files\3D Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scene.cpp">
@@ -103,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="inputhanlder.cpp">
       <Filter>Source Files\Event Hanlders</Filter>
+    </ClCompile>
+    <ClCompile Include="pointlight.cpp">
+      <Filter>Source Files\Data Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

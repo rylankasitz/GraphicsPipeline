@@ -4,6 +4,7 @@
 #include "framebuffer.h"
 #include "bbox.h";
 
+class PointLight;
 class Matrix;
 
 enum class DrawMode { WireFrame, Filled };
@@ -21,7 +22,7 @@ public:
 	TMesh() : vertices(0), colors(0), normals(0), verticesN(0), tris(0), trisN(0), BoundingBox(Vector::ZERO) {};
 	void Allocate(int _vertsN, int _trisN);
 
-	void DrawMesh(FrameBuffer* fb, PPC* ppc);
+	void DrawMesh(WorldView* wv, PointLight* pl);
 	void SetToCube(Vector cc, float sideLength, unsigned int color1, unsigned int color2);
 
 	void SetCenter(Vector center);
@@ -46,7 +47,10 @@ private:
 
 	void drawCubeQuadFaces(FrameBuffer* fb, PPC* ppc, unsigned int color);
 	void drawWireFrame(FrameBuffer* fb, PPC* ppc);
-	void drawFilled(FrameBuffer* fb, PPC* ppc);
+	void drawFilled_Unused(FrameBuffer* fb, PPC* ppc);
+	void drawFilled(FrameBuffer* fb, PPC* ppc, PointLight* pl);
+
 	void computeBBox();
 	void computeCenter();
+	
 };

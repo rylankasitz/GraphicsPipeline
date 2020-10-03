@@ -22,6 +22,8 @@ Scene::Scene() {
 	gui->show();
 	gui->uiw->position(u0 + w + 50, v0);
 
+	plight = new PointLight(Vector(0.0f, 0.0f, 100.0f), 0.25f, 32, 0.5f);
+
 	meshes = new TMesh[meshCount];
 	views = new WorldView*[viewCount];
 
@@ -85,8 +87,8 @@ void Scene::Render() {
 
 	Fl::check();
 
-	worldView->Render(meshes, meshCount, views, viewCount);
-	views[0]->Render(meshes, meshCount, views, 0);
+	worldView->Render(meshes, meshCount, views, viewCount, plight);
+	views[0]->Render(meshes, meshCount, views, 0, plight);
 }
 
 void Scene::DBG() {

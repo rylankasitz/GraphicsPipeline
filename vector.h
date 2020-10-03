@@ -14,6 +14,7 @@ public:
 	static Vector YAXIS;
 	static Vector ZAXIS;
 	static Vector ZERO;
+	static Vector ONES;
 
 	Vector() {};
 	Vector(float x, float y, float z);
@@ -26,6 +27,7 @@ public:
 	Vector operator^(Vector v);
 	Vector operator*(float s);
 	Vector operator/(float s);
+	Vector operator/(Vector v);
 
 	friend std::ostream& operator<<(std::ostream&, const Vector);
 	friend std::istream& operator>>(std::istream&, Vector&);
@@ -36,6 +38,7 @@ public:
 	void RotateVector(Vector axis, float angle);
 	void Clamp(Vector mins, Vector maxs);
 	void Clamp(Matrix values);
+	Vector Reflect(Vector normal);
 
 	void SetFromColor(unsigned int color);
 	unsigned int GetColor();

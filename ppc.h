@@ -3,11 +3,16 @@
 #include "worldview.h"
 #include "vector.h"
 
+class Matrix;
+
 class PPC {
 public:
+	Vector a, b, c, C;
+
 	PPC(float horizontalFOV, int _w, int _h);
 
 	int Project(Vector point, Vector& pointref);
+	int Project(Vector point, Vector& pointref, float& w);
 	Vector UnProject(Vector point);
 
 	void TranslateRight(float step);
@@ -24,6 +29,7 @@ public:
 	void SetFocalLength(float focalLength);
 	float GetFocalLength();
 	Vector GetViewDirection();
+	Matrix GetPerspectiveM();
 
 	void Visualize(WorldView* wv, float vf);
 
@@ -31,6 +37,5 @@ public:
 	void Load(const char* textfile);
 
 private:
-	Vector a, b, c, C;
 	int w, h;
 };

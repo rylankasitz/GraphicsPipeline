@@ -12,6 +12,7 @@ Vector Vector::XAXIS = Vector(1, 0, 0);
 Vector Vector::YAXIS = Vector(0, 1, 0);
 Vector Vector::ZAXIS = Vector(0, 0, 1);
 Vector Vector::ZERO = Vector(0, 0, 0);
+Vector Vector::ONES = Vector(1, 1, 1);
 
 Vector::Vector(float _x, float _y, float _z) {
 
@@ -92,6 +93,12 @@ Vector Vector::operator*(float s) {
 Vector Vector::operator/(float s) {
 
 	return Vector(x / s, y / s, z / s);
+
+}
+
+Vector Vector::operator/(Vector v) {
+
+	return Vector(x / v[0], y / v[1], z / v[2]);
 
 }
 
@@ -209,6 +216,12 @@ float Vector::GetMin() {
 
 float Vector::GetMax() {
 	return max({ x, y, z });
+}
+
+Vector Vector::Reflect(Vector normal) {
+
+	Vector v = (*this);
+	return normal * (-2.0f * (normal * v)) + v;
 }
 
 #pragma endregion Preforms vector operations

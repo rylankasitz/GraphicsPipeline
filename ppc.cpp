@@ -141,6 +141,11 @@ Vector PPC::GetViewDirection() {
 	return (a ^ b).Normalized();
 }
 
+Matrix PPC::GetPerspectiveM() {
+
+	return Matrix(a, b, c).Transposed();
+}
+
 #pragma endregion
 
 #pragma region Camera Visualization

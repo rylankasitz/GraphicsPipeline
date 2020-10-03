@@ -3,6 +3,7 @@
 
 #define _USE_MATH_DEFINES 
 #include "math.h"
+#include "ppc.h"
 
 #include <iostream>
 
@@ -185,6 +186,17 @@ Matrix Matrix::GetSSIM() {
 	ret.SetColumn(2, Vector(1.0f, 1.0f, 1.0f));
 
 	return ret.Inverted();
+}
+
+Matrix Matrix::GetPIM(PPC * ppc) {
+
+	Matrix ret = (*this);
+
+	ret[0] = ret[0] - ppc->C;
+	ret[1] = ret[1] - ppc->C;
+	ret[2] = ret[2] - ppc->C;
+
+	return ret.Transposed().Inverted() * ppc->GetPerspectiveM();
 }
 
 #pragma endregion Preforms matrix operations

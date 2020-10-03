@@ -5,6 +5,7 @@
 
 #include "TMesh.h"
 #include "matrix.h"
+#include "pointlight.h"
 
 void TMesh::Allocate(int _vertsN, int _trisN) {
 
@@ -15,15 +16,19 @@ void TMesh::Allocate(int _vertsN, int _trisN) {
 	BoundingBox = BBox(Vector::ZERO);
 }
 
-void TMesh::DrawMesh(FrameBuffer* fb, PPC* ppc) {
+#pragma region Rendering Methods
+
+void TMesh::DrawMesh(WorldView* wv, PointLight* pl) {
 
 	if (DrawMode == DrawMode::WireFrame) {
-		drawWireFrame(fb, ppc);
+		drawWireFrame(wv->fb, wv->ppc);
 	}
 	else if (DrawMode == DrawMode::Filled) {
-		drawFilled(fb, ppc);
+		drawFilled(wv->fb, wv->ppc, pl);
 	}
 }
+
+#pragma endregion
 
 #pragma region Transformations
 
@@ -264,7 +269,9 @@ void TMesh::drawWireFrame(FrameBuffer* fb, PPC* ppc) {
 	}
 }
 
-void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc) {
+#pragma region Unused
+
+void TMesh::drawFilled_Unused(FrameBuffer* fb, PPC* ppc) {
 
 	Vector* pverts = new Vector[verticesN];
 	for (int vi = 0; vi < verticesN; vi++) {
@@ -283,17 +290,16 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc) {
 		BBox bbox(pverts[vinds[0]]);
 		bbox.AddPoint(pverts[vinds[1]]);
 		bbox.AddPoint(pverts[vinds[2]]);
-		
+
 		if (!bbox.ClipWithFrame(fb->w, fb->h))
 			continue;
-
 
 		int left = (int)(bbox.Corners[0][0] + .5f);
 		int right = (int)(bbox.Corners[1][0] - .5f);
 		int top = (int)(bbox.Corners[0][1] + .5f);
 		int bottom = (int)(bbox.Corners[1][1] - .5f);
 
-		Matrix vertsm (pverts[vinds[0]], pverts[vinds[1]], pverts[vinds[2]]);
+		Matrix vertsm(pverts[vinds[0]], pverts[vinds[1]], pverts[vinds[2]]);
 
 		float minZ = vertsm.GetColumn(2).GetMin();
 		float maxZ = vertsm.GetColumn(2).GetMax();
@@ -320,7 +326,7 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc) {
 				float currentZ = ze * currentPix;
 				if (fb->Farther(u, v, clamp(currentZ, minZ, maxZ)))
 					continue; // behind another triangle
-				
+
 				Vector color = cme * currentPix;
 				color.Clamp(cm);
 				fb->Set(u, v, color.GetColor());
@@ -328,7 +334,93 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc) {
 		}
 	}
 
-	delete []pverts;
+	delete[]pverts;
+}
+
+
+#pragma endregion
+
+void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, PointLight* pl) {
+
+	Vector* pverts = new Vector[verticesN];
+	for (int vi = 0; vi < verticesN; vi++) {
+		if (!ppc->Project(vertices[vi], pverts[vi]))
+			pverts[vi] = Vector(FLT_MAX, FLT_MAX, FLT_MAX);
+	}
+
+	for (int tri = 0; tri < trisN; tri++) {
+		unsigned int vinds[3] = { tris[3 * tri + 0], tris[3 * tri + 1], tris[3 * tri + 2] };
+
+		if (pverts[vinds[0]][0] == FLT_MAX ||
+			pverts[vinds[1]][0] == FLT_MAX ||
+			pverts[vinds[2]][0] == FLT_MAX)
+			continue;
+
+		BBox bbox(pverts[vinds[0]]);
+		bbox.AddPoint(pverts[vinds[1]]);
+		bbox.AddPoint(pverts[vinds[2]]);
+
+		if (!bbox.ClipWithFrame(fb->w, fb->h))
+			continue;
+
+		int left = (int)(bbox.Corners[0][0] + .5f);
+		int right = (int)(bbox.Corners[1][0] - .5f);
+		int top = (int)(bbox.Corners[0][1] + .5f);
+		int bottom = (int)(bbox.Corners[1][1] - .5f);
+
+		// Verts Matricies
+		Matrix vertsP(pverts[vinds[0]], pverts[vinds[1]], pverts[vinds[2]]);
+		Matrix vertsUP(vertices[vinds[0]], vertices[vinds[1]], vertices[vinds[2]]);
+
+		// Type Matricies
+		Matrix cm = Matrix(colors[vinds[0]], colors[vinds[1]], colors[vinds[2]]).Transposed();
+		Matrix nm = Matrix(normals[vinds[0]], normals[vinds[1]], normals[vinds[2]]).Transposed();
+
+		// Equation Matricies
+		Matrix pim = vertsUP.GetPIM(ppc).Transposed();
+		Matrix eeqsm = vertsP.GetEdgeEQS();
+
+		// Equation variables
+		Matrix cme(pim * cm[0], pim * cm[1], pim * cm[2]);
+		Matrix nme(pim * nm[0], pim * nm[1], pim * nm[2]);
+		Vector ze = pim * Vector(pverts[vinds[0]][2], pverts[vinds[1]][2], pverts[vinds[2]][2]);
+
+		Vector w = pim * Vector::ONES;
+
+		for (int v = top; v <= bottom; v++) {
+			for (int u = left; u <= right; u++) {
+				Vector currentPix(.5f + (float)u, .5f + (float)v, 1.0f);
+				Vector side = eeqsm * currentPix;
+
+				if (side[0] < 0.0f || side[1] < 0.0f || side[2] < 0.0f)
+					continue; // outside of triangle
+
+				float currentZ = (ze * currentPix) / (w * currentPix);
+				if (fb->Farther(u, v, currentZ))
+					continue; // behind another triangle
+
+				// Demonimator
+				float d = 1 / (w * currentPix);
+
+				// Normal at current pixel
+				Vector normal = ((nme * currentPix) * d).Normalized();	
+
+				// Color at current pixel
+				Vector color = (cme * currentPix) * d;
+
+				// Light at current pixel
+				Vector currP = ppc->UnProject(Vector(currentPix[0], currentPix[1], currentZ));
+				Vector light = (pl->Center - currP).Normalized();
+
+				color = pl->Light(color, light, normal, (ppc->C - currP).Normalized());
+
+				color.Clamp(Vector::ZERO, Vector::ONES);
+				fb->Set(u, v, color.GetColor());
+			}
+		}
+	}
+
+	delete[]pverts;
 }
 
 #pragma endregion

@@ -2,6 +2,8 @@
 
 #include "vector.h"
 
+class PPC;
+
 class Matrix {
 public:
 	Matrix() {};
@@ -27,6 +29,7 @@ public:
 
 	Matrix GetEdgeEQS();
 	Matrix GetSSIM();
+	Matrix GetPIM(PPC * ppc);
 
 private:
 	Vector r0, r1, r2;

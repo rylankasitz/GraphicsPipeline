@@ -2,6 +2,7 @@
 #include "worldview.h"
 #include "tmesh.h"
 #include "ppc.h"
+#include "pointlight.h"
 
 WorldView::WorldView(unsigned int id, int x, int y, int w, int h, float hfov, const char* label) {
 
@@ -22,7 +23,7 @@ void WorldView::Show() {
 	fb->redraw();
 }
 
-void WorldView::Render(TMesh* meshes, int meshCount, WorldView** wvs, int wvCount) {
+void WorldView::Render(TMesh* meshes, int meshCount, WorldView** wvs, int wvCount, PointLight* pl) {
 	fb->SetBGR(0xFFFFFFFF);
 	fb->ClearZB();
 
@@ -31,7 +32,7 @@ void WorldView::Render(TMesh* meshes, int meshCount, WorldView** wvs, int wvCoun
 	}
 
 	for (int i = 0; i < meshCount; i++) {
-		meshes[i].DrawMesh(fb, ppc);
+		meshes[i].DrawMesh(this, pl);
 	}
 
 	fb->redraw();
