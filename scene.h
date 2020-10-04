@@ -8,7 +8,7 @@
 #include "ppc.h"
 #include "worldview.h"
 #include "inputhandler.h";
-#include "pointlight.h"
+#include "light.h"
 
 class Scene {
 public:
@@ -17,7 +17,7 @@ public:
 	WorldView** views;
 	WorldView *worldView;
 	TMesh *meshes;
-	PointLight* plight;
+	Light* plight;
 
 	int meshCount;
 	int viewCount;

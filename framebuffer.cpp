@@ -228,8 +228,4 @@ void FrameBuffer::SaveAsTiff(char *fname) {
 
 #pragma region Private Methods
 
-float FrameBuffer::getTriangleArea(Vector a, Vector b, Vector c) {
-	return fabsf((a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1])) / 2.0f);
-}
-
 #pragma endregion

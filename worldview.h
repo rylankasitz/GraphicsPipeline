@@ -4,7 +4,7 @@
 
 class PPC;
 class TMesh;
-class PointLight;
+class Light;
 
 class WorldView {
 public:
@@ -14,7 +14,7 @@ public:
 	WorldView(unsigned int id, int x, int y, int w, int h, float hfov, const char* label);
 	~WorldView();
 
-	void Render(TMesh* meshes, int meshCount, WorldView** wvs, int wvCount, PointLight* pl);
+	void Render(TMesh* meshes, int meshCount, WorldView** wvs, int wvCount, Light* pl);
 	void Show();
 
 private:

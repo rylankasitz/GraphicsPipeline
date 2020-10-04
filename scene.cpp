@@ -15,36 +15,36 @@ Scene::Scene() {
 	int h = 800;
 	int w = 1200;
 
-	meshCount = 5;
+	meshCount = 4;
 	viewCount = 3;
 
 	gui = new GUI();
 	gui->show();
 	gui->uiw->position(u0 + w + 50, v0);
 
-	plight = new PointLight(Vector(0.0f, 0.0f, 100.0f), 0.25f, 32, 0.5f);
+	plight = new Light(Vector(0.0f, 0.0f, 100.0f), 0.5f, 0.5f);
 
 	meshes = new TMesh[meshCount];
 	views = new WorldView*[viewCount];
 
 	worldView = new WorldView(0, u0, v0, w, h, 90.0f, "Main");
-	worldView->ppc->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
+	worldView->ppc->SetPose(Vector(-100, 100, 100), Vector::ZERO, Vector::YAXIS);
 	worldView->ppc->SetFocalLength(800);
 	worldView->Show();
 
+	views[0] = new WorldView(0, u0, v0, w, h, 90.0f, "v0");
+	views[0]->ppc->SetPose(Vector(-100, 100, 100), Vector::ZERO, Vector::YAXIS);
+	views[0]->ppc->SetFocalLength(800);
+
+	views[1] = new WorldView(0, u0, v0, w, h, 90.0f, "v1");
+	views[1]->ppc->SetPose(Vector(-100, 100, 100), Vector::ZERO, Vector::YAXIS);
+	views[1]->ppc->SetFocalLength(800);
+
+	views[2] = new WorldView(0, u0, v0, w, h, 90.0f, "v2");
+	views[2]->ppc->SetPose(Vector(200, 100, 100), Vector::ZERO, Vector::YAXIS);
+	views[2]->ppc->SetFocalLength(800);
+
 	InputHandler::Instatiate(worldView);
-
-	views[0] = new WorldView(0, u0 + w + 50, v0 + 200, 720, 405, 90.0f, "Demo");
-	views[0]->ppc->SetPose(Vector(100, 100, 0), Vector::ZERO, Vector::YAXIS);
-	views[0]->ppc->SetFocalLength(400);
-
-	views[1] = new WorldView(0, u0 + w + 50, v0 + 200, 720, 405, 90.0f, "Interp1");
-	views[1]->ppc->SetPose(Vector(100, 100, 0), Vector::ZERO, Vector::YAXIS);
-	views[1]->ppc->SetFocalLength(400);
-
-	views[2] = new WorldView(0, u0 + w + 50, v0 + 200, 720, 405, 90.0f, "Interp2");
-	views[2]->ppc->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
-	views[2]->ppc->SetFocalLength(400);
 
 	Load();
 	Render();
@@ -52,56 +52,42 @@ Scene::Scene() {
 
 void Scene::Load() {
 
-	TMesh teapot57k = TMesh();
-	TMesh teapot1k1 = TMesh();
-	TMesh teapot1k2 = TMesh();
-	TMesh teapot1k3 = TMesh();
-	TMesh bunny = TMesh();
+	TMesh table = TMesh(); TMesh floor = TMesh(); TMesh notebook = TMesh(); TMesh mirror = TMesh();
 
-	teapot1k1.LoadBin("geometry/teapot1k.bin");
-	teapot57k.LoadBin("geometry/teapot57k.bin");
-	teapot1k2.LoadBin("geometry/teapot1k.bin");
-	teapot1k3.LoadBin("geometry/teapot1k.bin");
-	bunny.LoadBin("geometry/happy4.bin");
+	table.LoadObj("geometry/table.obj", "geometry/Textures/RedOak.tif", true);
+	table.SetScale(80);
+	table.SetCenter(Vector(0.0f, 40.0f, 0.0f));
+	table.Rotate(table.GetCenter(), Vector::YAXIS, 90);
 
-	teapot1k1.SetScale(80);
-	teapot1k2.SetScale(80);
-	teapot1k3.SetScale(80);
-	teapot57k.SetScale(80);
-	bunny.SetScale(80);
+	floor.LoadObj("geometry/floor.obj", "geometry/Textures/WhiteMarble.tif", true);
+	floor.SetScale(200);
+	floor.SetCenter(Vector::ZERO);
 
-	teapot57k.SetCenter(Vector::ZERO);
-	teapot1k1.SetCenter(Vector(50, 0, 50));
-	teapot1k2.SetCenter(Vector(-50, 0, 50));
-	teapot1k3.SetCenter(Vector(50, 0, -50));
-	bunny.SetCenter(Vector(-50, 0, -50));
+	notebook.LoadObj("geometry/notebook.obj", "geometry/Textures/notebook.tif", true);
+	notebook.SetScale(15);
+	notebook.SetCenter(Vector(-5.0f, 50.0f, 5.0f));
 
-	meshes[0] = teapot1k1;
-	meshes[1] = teapot1k2;
-	meshes[2] = teapot1k3;
-	meshes[3] = teapot57k;
-	meshes[4] = bunny;
+	mirror.LoadObj("geometry/mirror.obj", "geometry/Textures/reflection.tif", true);
+	mirror.SetScale(18);
+	mirror.SetCenter(Vector(20.0f, 55.0f, -7.0f));
+	mirror.Rotate(mirror.GetCenter(), Vector::YAXIS, 200);
+	mirror.Rotate(mirror.GetCenter(), Vector::ZAXIS, 180);
+
+	meshes[0] = table;
+	meshes[1] = floor;
+	meshes[2] = notebook;
+	meshes[3] = mirror;
 }
 
 void Scene::Render() {
 
 	Fl::check();
-
 	worldView->Render(meshes, meshCount, views, viewCount, plight);
 	views[0]->Render(meshes, meshCount, views, 0, plight);
 }
 
 void Scene::DBG() {
-	TMesh mesh = TMesh();
 
-	mesh.LoadBin("geometry/teapot57k.bin");
-	mesh.SetCenter(Vector(0, 0, 0));
-
-	for (int i = 0; i < 360; i++) {
-
-		Fl::check();
-		Render();
-	}
 }
 
 
@@ -113,14 +99,13 @@ void Scene::Demo() {
 
 	for (int i = 0; i < steps; i++) {
 		
-		if (i >= ((steps / 2) - 1))
-			views[0]->ppc->Interpolate(views[1]->ppc, views[2]->ppc, i - ((steps / 2) - 1), steps / 2);
+		views[0]->ppc->Interpolate(views[1]->ppc, views[2]->ppc, i, steps);
 
-		meshes[0].Rotate(Vector::ZERO, Vector::YAXIS, 1);
-		meshes[1].Rotate(Vector::ZERO, Vector::ZAXIS, 1);
-		meshes[2].Rotate(Vector::ZERO, Vector::XAXIS, 1);
-		meshes[3].Rotate(Vector::ZERO, Vector::YAXIS, 1);
-		meshes[4].Rotate(Vector::ZERO, Vector::YAXIS, 1);
+		//meshes[0].Rotate(Vector::ZERO, Vector::YAXIS, 1);
+		//meshes[1].Rotate(Vector::ZERO, Vector::ZAXIS, 1);
+		//meshes[2].Rotate(Vector::ZERO, Vector::XAXIS, 1);
+		//meshes[3].Rotate(Vector::ZERO, Vector::YAXIS, 1);
+		//meshes[4].Rotate(Vector::ZERO, Vector::YAXIS, 1);
 
 		Fl::check();
 		Render();

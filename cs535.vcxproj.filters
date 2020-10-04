@@ -69,7 +69,10 @@
     <ClInclude Include="inputhandler.h">
       <Filter>Header Files\Event Handlers</Filter>
     </ClInclude>
-    <ClInclude Include="pointlight.h">
+    <ClInclude Include="light.h">
+      <Filter>Header Files\3D Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
       <Filter>Header Files\3D Objects</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,8 +110,11 @@
     <ClCompile Include="inputhanlder.cpp">
       <Filter>Source Files\Event Hanlders</Filter>
     </ClCompile>
-    <ClCompile Include="pointlight.cpp">
+    <ClCompile Include="light.cpp">
       <Filter>Source Files\Data Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="material.cpp">
+      <Filter>Source Files\3D Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

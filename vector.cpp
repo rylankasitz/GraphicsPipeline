@@ -224,6 +224,11 @@ Vector Vector::Reflect(Vector normal) {
 	return normal * (-2.0f * (normal * v)) + v;
 }
 
+Vector Vector::BIntrp(Vector c00, Vector c01, Vector c10, Vector c11) {
+	
+	return c00 * (1 - x) * (1 - y) + c10 * x * (1 - y) + c01 * (1 - x) * y + c11 * x * y;
+}
+
 #pragma endregion Preforms vector operations
 
 #pragma region Graphics Operations

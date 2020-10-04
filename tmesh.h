@@ -3,9 +3,13 @@
 #include "ppc.h"
 #include "framebuffer.h"
 #include "bbox.h";
+#include "material.h";
 
-class PointLight;
+#include <vector>
+
+class Light;
 class Matrix;
+class Material;
 
 enum class DrawMode { WireFrame, Filled };
 
@@ -16,14 +20,18 @@ public:
 
 	DrawMode DrawMode = DrawMode::Filled;
 	BBox BoundingBox;
+	Material Material;
 
 	#pragma endregion
 
-	TMesh() : vertices(0), colors(0), normals(0), verticesN(0), tris(0), trisN(0), BoundingBox(Vector::ZERO) {};
+	TMesh() : vertices(0), colors(0), normals(0), textures(0), 
+		trisv(0), trisvt(0), trisvn(0), 
+		verticesN(0), texturesN(0), trisN(0), 
+		BoundingBox(Vector::ZERO), Material(0xFF0000FF, 32) {};
+
 	void Allocate(int _vertsN, int _trisN);
 
-	void DrawMesh(WorldView* wv, PointLight* pl);
-	void SetToCube(Vector cc, float sideLength, unsigned int color1, unsigned int color2);
+	void DrawMesh(WorldView* wv, Light* pl);
 
 	void SetCenter(Vector center);
 	Vector GetCenter();
@@ -32,25 +40,24 @@ public:
 	void Translate(Vector translation);
 	void Rotate(Vector origin, Vector axis, float angle);
 
-	void LoadBin(char* fname);
+	void LoadObj(char* fname);
+	void LoadObj(char* fname, char* tname, bool tiled);
 
 private: 
-	Vector* vertices;
-	Vector* colors;
-	Vector* normals;
+	vector<Vector> vertices; vector<Vector> colors; vector<Vector> normals; vector<Vector> textures;
 
 	Vector center;
 
-	int verticesN;
-	unsigned int* tris;
-	int trisN;
+	int verticesN; int texturesN; int trisN;
+	vector<unsigned int> trisv; vector<unsigned int> trisvt; vector<unsigned int> trisvn;
 
 	void drawCubeQuadFaces(FrameBuffer* fb, PPC* ppc, unsigned int color);
 	void drawWireFrame(FrameBuffer* fb, PPC* ppc);
-	void drawFilled_Unused(FrameBuffer* fb, PPC* ppc);
-	void drawFilled(FrameBuffer* fb, PPC* ppc, PointLight* pl);
+	void drawFilled(FrameBuffer* fb, PPC* ppc, Light* pl);
 
 	void computeBBox();
 	void computeCenter();
+
+	vector<string> split(string str, string del);
 	
 };

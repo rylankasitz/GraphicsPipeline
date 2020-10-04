@@ -39,6 +39,7 @@ public:
 	void Clamp(Vector mins, Vector maxs);
 	void Clamp(Matrix values);
 	Vector Reflect(Vector normal);
+	Vector BIntrp(Vector c00, Vector c01, Vector c10, Vector c11);
 
 	void SetFromColor(unsigned int color);
 	unsigned int GetColor();

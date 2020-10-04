@@ -35,5 +35,4 @@ public:
 	void SaveAsTiff(char *fname);
 
 private:
-	float getTriangleArea(Vector p1, Vector p2, Vector p3);
 };
