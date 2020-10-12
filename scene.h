@@ -9,18 +9,20 @@
 #include "worldview.h"
 #include "inputhandler.h";
 #include "light.h"
+#include "projector.h"
+#include "resourcemanager.h"
 
 class Scene {
 public:
 
 	GUI *gui;
-	WorldView** views;
+	ResourceManager* rm;
 	WorldView *worldView;
-	TMesh *meshes;
-	Light* plight;
 
-	int meshCount;
-	int viewCount;
+	vector<WorldView*> views;
+
+	Light* plight;
+	Projector* projector;
 
 	Scene();
 

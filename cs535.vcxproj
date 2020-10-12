@@ -86,6 +86,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="projector.h" />
     <ClInclude Include="bbox.h" />
     <ClInclude Include="framebuffer.h" />
     <ClInclude Include="glext.h" />
@@ -95,8 +96,10 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="ppc.h" />
+    <ClInclude Include="resourcemanager.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="tmesh.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="worldview.h" />
@@ -113,11 +116,14 @@
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="ppc.cpp" />
+    <ClCompile Include="projector.cpp" />
+    <ClCompile Include="resourcemanager.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="texture.cpp" />
     <ClCompile Include="tmesh.cpp" />
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="worldview.cpp" />

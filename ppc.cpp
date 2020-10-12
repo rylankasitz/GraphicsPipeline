@@ -48,6 +48,27 @@ int PPC::Project(Vector point, Vector& pointref) {
 	return 1;
 }
 
+int PPC::ProjectW(Vector point, Vector& pointref) {
+
+	Matrix m;
+
+	m.SetColumn(0, a);
+	m.SetColumn(1, b);
+	m.SetColumn(2, c);
+
+	Vector q = m.Inverted() * (point - C);
+	float w = q[2];
+
+	if (w <= 0.0f)
+		return 0;
+
+	pointref[0] = q[0] / q[2];
+	pointref[1] = q[1] / q[2];
+	pointref[2] = w;
+
+	return 1;
+}
+
 Vector PPC::UnProject(Vector point) {
 
 	return C + (a * point[0] + b * point[1] + c) / point[2];

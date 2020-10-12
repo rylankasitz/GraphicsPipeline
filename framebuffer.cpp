@@ -54,6 +54,15 @@ void FrameBuffer::Set(int u, int v, unsigned int color) {
 
 }
 
+bool FrameBuffer::Get(int u, int v, unsigned int& color) {
+
+	if (u < 0 || u > w - 1 || v < 0 || v > h - 1)
+		return false;
+
+	color = pix[(h - 1 - v) * w + u];
+	return true;
+}
+
 void FrameBuffer::SetBGR(unsigned int bgr) {
 
 	for (int uv = 0; uv < w*h; uv++)
@@ -135,6 +144,15 @@ int FrameBuffer::Farther(int u, int v, float currz) {
 
 	zb[uv] = currz;
 	return 0;
+}
+
+bool FrameBuffer::Closer(int u, int v, float currz, float error) {
+
+	if (u < 0 || u > w - 1 || v < 0 || v > h - 1)
+		return false;
+
+	int uv = (h - 1 - v) * w + u;
+	return currz >= zb[uv] - error;
 }
 
 void FrameBuffer::Draw3dSegment(Vector point1, Vector point2, PPC* ppc, Vector color1, Vector color2) {

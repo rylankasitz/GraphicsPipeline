@@ -20,6 +20,7 @@ public:
 	void draw();
 	void SetBGR(unsigned int bgr);
 	void Set(int u, int v, unsigned int color);
+	bool Get(int u, int v, unsigned int& color);
 	void ClearZB();
 
 	void Draw2dSegment(Vector p1, Vector p2, Vector c1, Vector c2);
@@ -30,6 +31,7 @@ public:
 	void Draw3DPoint(Vector point, PPC* ppc, unsigned int color, int psize);
 
 	int Farther(int u, int v, float currz);
+	bool Closer(int u, int v, float currz, float error);
 
 	void LoadTiff(char* fname);
 	void SaveAsTiff(char *fname);

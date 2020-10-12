@@ -1,7 +1,9 @@
 #pragma once
 
 #include "vector.h"
+#include "texture.h"
 
+class Vector;
 class FrameBuffer;
 
 class Material
@@ -9,17 +11,15 @@ class Material
 public:
 	static Material Default;
 
-	Vector Color; 
-	Vector CurrPixColor;
-	float Pfong;
+	Vector color, currColor; 
+	float pfong;
+	Texture texture;
 
-	Material(unsigned int color, float pfong);
-	~Material();
-	
-	void LoadTexture(char* tex, bool tiled);
-	void SetTexturePix(float x, float y);
+	Material() {}
+	Material(unsigned int _color);
+	Material(unsigned int _color, Texture _texture);
+
+	void SetPix(float x, float y);
 
 private:
-	FrameBuffer* fb;
-	bool tiled;
 };

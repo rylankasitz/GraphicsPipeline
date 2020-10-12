@@ -12,7 +12,7 @@ public:
 	PPC(float horizontalFOV, int _w, int _h);
 
 	int Project(Vector point, Vector& pointref);
-	int Project(Vector point, Vector& pointref, float& w);
+	int ProjectW(Vector point, Vector& pointref);
 	Vector UnProject(Vector point);
 
 	void TranslateRight(float step);

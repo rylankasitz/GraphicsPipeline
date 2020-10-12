@@ -3,6 +3,7 @@
 #include "tmesh.h"
 #include "ppc.h"
 #include "light.h"
+#include "scene.h"
 
 WorldView::WorldView(unsigned int id, int x, int y, int w, int h, float hfov, const char* label) {
 
@@ -11,6 +12,7 @@ WorldView::WorldView(unsigned int id, int x, int y, int w, int h, float hfov, co
 	fb->SetBGR(0xFF0000FF);
 
 	ppc = new PPC(hfov, fb->w, fb->h);
+	renderMode = RenderMode::Full;
 }
 
 WorldView::~WorldView() {
@@ -23,19 +25,22 @@ void WorldView::Show() {
 	fb->redraw();
 }
 
-void WorldView::Render(TMesh* meshes, int meshCount, WorldView** wvs, int wvCount, Light* pl) {
-	fb->SetBGR(0xFFFFFFFF);
+void WorldView::Render(Scene* scene) {
+
+	if (renderMode == RenderMode::Full) {
+		fb->SetBGR(0xFFFFFFFF);		
+	}
 	fb->ClearZB();
 
-	for (int i = 0; i < wvCount; i++) {
-		wvs[i]->ppc->Visualize(this, 20.0f);
+	for (auto& wv : scene->views) {
+		wv->ppc->Visualize(this, 20.0f);
 	}
 
-	for (int i = 0; i < meshCount; i++) {
-		meshes[i].DrawMesh(this, pl);
-
-		cerr << meshes[i].GetCenter() << "        \r";
+	for (auto& mesh : scene->rm->meshes) {
+		mesh.second.DrawMesh(this, scene);
 	}
+
+	scene->plight->Render(this);
 
 	fb->redraw();
 }

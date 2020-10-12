@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Event Hanlders">
       <UniqueIdentifier>{13c1ddee-a868-47ff-b472-3923e5485de6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Resource Objects">
+      <UniqueIdentifier>{7dfaca30-e153-4464-a7af-8bb4c04c3ce7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource Objects">
+      <UniqueIdentifier>{4bf414df-b7a6-419b-8bfb-9e3649465268}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framebuffer.h">
@@ -72,8 +78,17 @@
     <ClInclude Include="light.h">
       <Filter>Header Files\3D Objects</Filter>
     </ClInclude>
-    <ClInclude Include="material.h">
+    <ClInclude Include="projector.h">
       <Filter>Header Files\3D Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>Header Files\Resource Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files\Resource Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="resourcemanager.h">
+      <Filter>Header Files\Resource Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -111,10 +126,19 @@
       <Filter>Source Files\Event Hanlders</Filter>
     </ClCompile>
     <ClCompile Include="light.cpp">
-      <Filter>Source Files\Data Objects</Filter>
+      <Filter>Source Files\3D Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="projector.cpp">
+      <Filter>Source Files\3D Objects</Filter>
     </ClCompile>
     <ClCompile Include="material.cpp">
-      <Filter>Source Files\3D Objects</Filter>
+      <Filter>Source Files\Resource Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files\Resource Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="resourcemanager.cpp">
+      <Filter>Source Files\Resource Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,7 @@
 class Light;
 class Matrix;
 class Material;
+class Scene;
 
 enum class DrawMode { WireFrame, Filled };
 
@@ -20,18 +21,18 @@ public:
 
 	DrawMode DrawMode = DrawMode::Filled;
 	BBox BoundingBox;
-	Material Material;
+	Material material;
 
 	#pragma endregion
 
 	TMesh() : vertices(0), colors(0), normals(0), textures(0), 
 		trisv(0), trisvt(0), trisvn(0), 
 		verticesN(0), texturesN(0), trisN(0), 
-		BoundingBox(Vector::ZERO), Material(0xFF0000FF, 32) {};
+		BoundingBox(Vector::ZERO), material(0xFF0000FF) {};
 
 	void Allocate(int _vertsN, int _trisN);
 
-	void DrawMesh(WorldView* wv, Light* pl);
+	void DrawMesh(WorldView* wv, Scene* scene);
 
 	void SetCenter(Vector center);
 	Vector GetCenter();
@@ -41,7 +42,6 @@ public:
 	void Rotate(Vector origin, Vector axis, float angle);
 
 	void LoadObj(char* fname);
-	void LoadObj(char* fname, char* tname, bool tiled);
 
 private: 
 	vector<Vector> vertices; vector<Vector> colors; vector<Vector> normals; vector<Vector> textures;
@@ -53,7 +53,7 @@ private:
 
 	void drawCubeQuadFaces(FrameBuffer* fb, PPC* ppc, unsigned int color);
 	void drawWireFrame(FrameBuffer* fb, PPC* ppc);
-	void drawFilled(FrameBuffer* fb, PPC* ppc, Light* pl);
+	void drawFilled(FrameBuffer* fb, PPC* ppc, Scene* scene, RenderMode rmode);
 
 	void computeBBox();
 	void computeCenter();

@@ -7,6 +7,8 @@
 #include "TMesh.h"
 #include "matrix.h"
 #include "light.h"
+#include "scene.h"
+#include "texture.h"
 
 
 void TMesh::Allocate(int _vertsN, int _trisN) {
@@ -15,18 +17,18 @@ void TMesh::Allocate(int _vertsN, int _trisN) {
 	trisN = _trisN;
 
 	BoundingBox = BBox(Vector::ZERO);
-	Material = Material::Default;
+	material = Material::Default;
 }
 
 #pragma region Rendering Methods
 
-void TMesh::DrawMesh(WorldView* wv, Light* pl) {
+void TMesh::DrawMesh(WorldView* wv, Scene* scene) {
 
 	if (DrawMode == DrawMode::WireFrame) {
 		drawWireFrame(wv->fb, wv->ppc);
 	}
 	else if (DrawMode == DrawMode::Filled) {
-		drawFilled(wv->fb, wv->ppc, pl);
+		drawFilled(wv->fb, wv->ppc, scene, wv->renderMode);
 	}
 }
 
@@ -78,17 +80,7 @@ void TMesh::Rotate(Vector origin, Vector axis, float angle) {
 
 #pragma endregion
 
-#pragma region Set to 3d Objects
-
-#pragma endregion
-
 #pragma region Load/Write From File
-
-void TMesh::LoadObj(char* fname, char* tname, bool tiled) {
-
-	Material.LoadTexture(tname, tiled);
-	LoadObj(fname);
-}
 
 void TMesh::LoadObj(char* fname) {
 
@@ -109,7 +101,7 @@ void TMesh::LoadObj(char* fname) {
 
 		if (pline[0] == "v") {
 			vertices.push_back(Vector(stof(pline[1]), stof(pline[2]), stof(pline[3])));
-			colors.push_back(Material.Color); // Give it a default color
+			colors.push_back(material.color); // Give it a default color
 			verticesN++;
 		}
 		else if (pline[0] == "vt") {
@@ -166,12 +158,16 @@ void TMesh::drawWireFrame(FrameBuffer* fb, PPC* ppc) {
 	}
 }
 
-void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Light* pl) {
+void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Scene* scene, RenderMode rmode) {
 
 	Vector* pverts = new Vector[verticesN];
+	Vector* pvertsW = new Vector[verticesN];
 	for (int vi = 0; vi < verticesN; vi++) {
 		if (!ppc->Project(vertices[vi], pverts[vi]))
 			pverts[vi] = Vector(FLT_MAX, FLT_MAX, FLT_MAX);
+
+		if (!ppc->ProjectW(vertices[vi], pvertsW[vi]))
+			pvertsW[vi] = Vector(FLT_MAX, FLT_MAX, FLT_MAX);
 	}
 
 	for (int tri = 0; tri < trisN; tri++) {
@@ -198,6 +194,7 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Light* pl) {
 
 		// Verts Matricies
 		Matrix vertsP(pverts[vinds[0]], pverts[vinds[1]], pverts[vinds[2]]);
+		Matrix vertsPW(pvertsW[vinds[0]], pvertsW[vinds[1]], pvertsW[vinds[2]]);
 		Matrix vertsUP(vertices[vinds[0]], vertices[vinds[1]], vertices[vinds[2]]);
 
 		// Type Matricies
@@ -213,7 +210,7 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Light* pl) {
 		Matrix cme(pim * cm[0], pim * cm[1], pim * cm[2]);
 		Matrix nme(pim * nm[0], pim * nm[1], pim * nm[2]);
 		Matrix tme(pim * tm[0], pim * tm[1], pim * tm[2]);
-		Vector ze = pim * Vector(pverts[vinds[0]][2], pverts[vinds[1]][2], pverts[vinds[2]][2]);
+		Vector ze = pim * vertsPW.GetColumn(2);
 
 		Vector w = pim * Vector::ONES;
 
@@ -225,26 +222,39 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Light* pl) {
 				if (side[0] < 0.0f || side[1] < 0.0f || side[2] < 0.0f)
 					continue; // outside of triangle
 
-				float currentZ = (ze * currentPix) / (w * currentPix);
-				if (fb->Farther(u, v, currentZ))
-					continue; // behind another triangle
-
 				// Demonimator
 				float d = 1 / (w * currentPix);
 
-				// Normal, color, texture at current pixel
+				float currentZ = (ze * currentPix) / d;
+				if (fb->Farther(u, v, currentZ))
+					continue; // behind another triangle
+
+				if (rmode == RenderMode::ShadowMap)
+					continue; // only get zbuffer for shadow map
+
+				// Get unporjected pixel
+				Vector currP = ppc->UnProject(Vector(currentPix[0], currentPix[1], currentZ));
+
+				// Normal, color, texture, light at current pixel
 				Vector normal = ((nme * currentPix) * d).Normalized();	
 				Vector color = (cme * currentPix) * d;
 				Vector texture = (tme * currentPix) * d;
+				Vector light = (scene->plight->center - currP).Normalized();
 
-				// Light at current pixel
-				Vector currP = ppc->UnProject(Vector(currentPix[0], currentPix[1], currentZ));
-				Vector light = (pl->Center - currP).Normalized();
+				// Add lighting to pixel	
+				material.SetPix(texture[0], texture[1]);
+				color = scene->plight->GetColor(light, normal, (ppc->C - currP).Normalized(), material);
 
-				// Set color value
-				Material.SetTexturePix(texture[0], texture[1]);
-				color = pl->GetColor(light, normal, (ppc->C - currP).Normalized(), Material);
-				color.Clamp(Vector::ZERO, Vector::ONES);
+				// Add shadow to pixel
+				if (scene->plight->InShadow(currP)) { 
+					color = color * scene->plight->ambience;
+				}
+
+				// Add projector to pixel
+				Vector projColor;
+				if (scene->projector->GetProjectorColor(currP, projColor)) {
+					color = projColor;
+				}		
 
 				fb->Set(u, v, color.GetColor());
 			}
@@ -252,6 +262,7 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Light* pl) {
 	}
 
 	delete[]pverts;
+	delete[]pvertsW;
 }
 
 #pragma endregion
