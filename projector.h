@@ -1,6 +1,7 @@
 #pragma once
 
-class Vector;
+#include "vector.h"
+
 class WorldView;
 class Scene;
 
@@ -8,10 +9,17 @@ class Projector
 {
 public:
 	WorldView* wv;
-	Projector(char* tex, Vector position, Vector lookatpoint);
+	Scene* scene;
+	Vector center, lookatPoint;
 
-	void RenderFB(Scene* scene);
+	Projector(char* tex, Scene* scene);
+
+	void Render(WorldView* wv);
+	void RenderFB();
 	bool GetProjectorColor(Vector point, Vector& color);
+
+	void SetPostion(Vector position, Vector lookatpoint);
+	void Rotate(Vector origin, Vector direction, float angle);
 
 private:
 

@@ -12,17 +12,20 @@ class Light
 {
 public:
 	Vector center;
-	float ambience;
-	float intensity;
+	float ambience, intensity;
 	WorldView* wvShadowMap;
+	Scene* scene;
 
 	Light();
-	Light(Vector center, float ambient, float intensity);
+	Light(float ambient, float intensity, Scene* scene);
 
 	void Render(WorldView* wv);
 	Vector GetColor(Vector lightv, Vector normalv, Vector vd, Material m);
-	void RenderShadowMap(Scene* scene);
+	void RenderShadowMap();
 	bool InShadow(Vector point);
+
+	void SetPosition(Vector position);
+	void Rotate(Vector origin, Vector direction, float angle);
 
 private:
 };

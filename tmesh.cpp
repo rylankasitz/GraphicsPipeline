@@ -225,7 +225,7 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Scene* scene, RenderMode rmode
 				// Demonimator
 				float d = 1 / (w * currentPix);
 
-				float currentZ = (ze * currentPix) / d;
+				float currentZ = (w * currentPix) / (ze * currentPix);
 				if (fb->Farther(u, v, currentZ))
 					continue; // behind another triangle
 

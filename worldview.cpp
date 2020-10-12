@@ -32,8 +32,10 @@ void WorldView::Render(Scene* scene) {
 	}
 	fb->ClearZB();
 
-	for (auto& wv : scene->views) {
-		wv->ppc->Visualize(this, 20.0f);
+	if (renderMode == RenderMode::Full) {
+		for (auto& wv : scene->views) {
+			wv->ppc->Visualize(this, 20.0f);
+		}
 	}
 
 	for (auto& mesh : scene->rm->meshes) {
@@ -41,6 +43,7 @@ void WorldView::Render(Scene* scene) {
 	}
 
 	scene->plight->Render(this);
+	scene->projector->Render(this);
 
 	fb->redraw();
 }

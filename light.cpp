@@ -9,11 +9,12 @@
 
 using namespace std;
 
-Light::Light(Vector center, float ambient, float intensity)
+Light::Light(float _ambient, float _intensity, Scene* _scene)
 {
-	center = center;
-	intensity = intensity;
-	ambience = ambient;
+	center = Vector(100, 100, 100);
+	intensity = _intensity;
+	ambience = _ambient;
+	scene = _scene;
 
 	wvShadowMap = new WorldView(0, 0, 0, 2000, 2000, 120.0f, "Shadowmap");
 	wvShadowMap->ppc->SetPose(center, Vector::ZERO, Vector::YAXIS);
@@ -22,7 +23,7 @@ Light::Light(Vector center, float ambient, float intensity)
 
 void Light::Render(WorldView* wv) {
 
-	wv->fb->Draw3DPoint(center, wv->ppc, 0xFFFFFF00, 10);
+	wv->fb->Draw3DPoint(center, wv->ppc, CR_YELLOW, 10);
 }
 
 Vector Light::GetColor(Vector lightv, Vector normalv, Vector vd, Material m) {
@@ -36,7 +37,7 @@ Vector Light::GetColor(Vector lightv, Vector normalv, Vector vd, Material m) {
 	return color;
 }
 
-void Light::RenderShadowMap(Scene* scene) {
+void Light::RenderShadowMap() {
 
 	wvShadowMap->Render(scene);
 }
@@ -47,5 +48,24 @@ bool Light::InShadow(Vector point) {
 	if (!wvShadowMap->ppc->Project(point, pPoint))
 		return false;
 
-	return !wvShadowMap->fb->Closer(pPoint[0], pPoint[1], pPoint[2], 0.05f);
+	return !wvShadowMap->fb->Closer(pPoint[0], pPoint[1], pPoint[2], 0.5f);
 }
+
+#pragma region Transformations
+
+void Light::SetPosition(Vector position) {
+
+	center = position;
+	wvShadowMap->ppc->SetPose(center, Vector::ZERO, Vector::YAXIS);
+	RenderShadowMap();
+}
+
+void Light::Rotate(Vector origin, Vector direction, float angle) {
+
+	center.RotatePoint(origin, direction, angle);
+	wvShadowMap->ppc->SetPose(center, Vector::ZERO, Vector::YAXIS);
+	RenderShadowMap();
+}
+
+#pragma endregion
+

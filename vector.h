@@ -42,6 +42,7 @@ public:
 	Vector BIntrp(Vector c00, Vector c01, Vector c10, Vector c11);
 
 	void SetFromColor(unsigned int color);
+	bool SetFromColorAlfa(unsigned int color);
 	unsigned int GetColor();
 
 	float GetMin();

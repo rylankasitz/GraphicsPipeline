@@ -244,6 +244,19 @@ void Vector::SetFromColor(unsigned int color) {
 
 }
 
+bool Vector::SetFromColorAlfa(unsigned int color) {
+
+	unsigned char* rgb = (unsigned char*)&color;
+	Vector& v = *this;
+
+	v[0] = (float)(rgb[0]) / 255.0f;
+	v[1] = (float)(rgb[1]) / 255.0f;
+	v[2] = (float)(rgb[2]) / 255.0f;
+	float alfa = (float)(rgb[3]) / 255.0f;
+
+	return alfa == 0x00;
+}
+
 unsigned int Vector::GetColor() {
 
 	unsigned int ret;

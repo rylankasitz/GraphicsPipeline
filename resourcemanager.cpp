@@ -16,14 +16,17 @@ ResourceManager::ResourceManager() {
 void ResourceManager::Load() {
 
 	AddTexture("Marble", "geometry/Textures/WhiteMarble.tif");
+	AddTexture("blender", "geometry/Textures/blender.tiff");
 
 	AddMaterial("red", Material(CR_RED));
 	AddMaterial("blue", Material(CR_BLUE));
 	AddMaterial("green", Material(CR_GREEN));
+	AddMaterial("yellow", Material(CR_YELLOW));
 
 	AddMesh("cube", "geometry/cube.obj");
 	AddMesh("monkey", "geometry/monkey.obj");
 	AddMesh("terrain", "geometry/terrain.obj");
+	AddMesh("plane", "geometry/plane.obj");
 }
 
 #pragma region Loading Resources

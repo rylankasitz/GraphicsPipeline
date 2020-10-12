@@ -22,8 +22,8 @@ Scene::Scene() {
 	gui->show();
 	gui->uiw->position(u0 + w + 50, v0);
 
-	plight = new Light(Vector(100.0f, 150.0f, -100.0f), 0.25f, 0.5f);
-	projector = new Projector("geometry/Textures/WhiteMarble.tif", Vector(100, 100, 100), Vector::ZERO);
+	plight = new Light(0.25f, 0.5f, this);
+	projector = new Projector("geometry/Textures/blender.tiff", this);
 	rm = new ResourceManager();
 
 	worldView = new WorldView(0, u0, v0, w, h, 90.0f, "Main");
@@ -32,11 +32,11 @@ Scene::Scene() {
 	worldView->Show();
 
 	views.push_back(new WorldView(0, u0, v0, w, h, 90.0f, "v0"));
-	views[0]->ppc->SetPose(Vector(-100, 100, 100), Vector::ZERO, Vector::YAXIS);
+	views[0]->ppc->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
 	views[0]->ppc->SetFocalLength(800);
 
 	views.push_back(new WorldView(0, u0, v0, w, h, 90.0f, "v1"));
-	views[1]->ppc->SetPose(Vector(-100, 100, 100), Vector::ZERO, Vector::YAXIS);
+	views[1]->ppc->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
 	views[1]->ppc->SetFocalLength(800);
 
 	views.push_back(new WorldView(0, u0, v0, w, h, 90.0f, "v2"));
@@ -54,9 +54,22 @@ void Scene::Load() {
 
 	rm->meshes["terrain"].SetCenter(Vector::ZERO);
 	rm->meshes["terrain"].SetScale(400);
+	rm->meshes["terrain"].material = rm->materials["green"];
 
-	plight->RenderShadowMap(this);
-	projector->RenderFB(this);
+	rm->meshes["monkey"].SetCenter(Vector(0, 50, 0));
+	rm->meshes["monkey"].SetScale(40);
+	rm->meshes["monkey"].material = rm->materials["blue"];
+
+	rm->meshes["cube"].SetCenter(Vector(50, 50, 0));
+	rm->meshes["cube"].SetScale(40);
+	rm->meshes["cube"].material = rm->materials["red"];
+
+	rm->meshes["plane"].SetCenter(Vector(-50, 20, 0));
+	rm->meshes["plane"].SetScale(100);
+	rm->meshes["plane"].material = rm->materials["yellow"];
+
+	plight->SetPosition(Vector(100, 100, 100));
+	projector->SetPostion(Vector(-100, 50, -100), Vector::ZERO);
 }
 
 void Scene::Render() {
@@ -72,21 +85,18 @@ void Scene::DBG() {
 }
 
 void Scene::Demo() {
-	int steps = 300;
 
+	int steps = 600;
 	views[0]->Show();
+	for (int i = 0; i < steps; i++) {	
 
-	for (int i = 0; i < steps; i++) {
-		
-		views[0]->ppc->Interpolate(views[1]->ppc, views[2]->ppc, i, steps);
+		if (i < 200)
+			plight->Rotate(Vector::ZERO, Vector::YAXIS, 360 / (float) 200);
+		else if (i < 400)
+			projector->Rotate(Vector::ZERO, Vector::YAXIS, 360 / (float)200);
+		else
+			views[0]->ppc->Interpolate(views[1]->ppc, views[2]->ppc, i - 400, 200);
 
-		//meshes[0].Rotate(Vector::ZERO, Vector::YAXIS, 1);
-		//meshes[1].Rotate(Vector::ZERO, Vector::ZAXIS, 1);
-		//meshes[2].Rotate(Vector::ZERO, Vector::XAXIS, 1);
-		//meshes[3].Rotate(Vector::ZERO, Vector::YAXIS, 1);
-		//meshes[4].Rotate(Vector::ZERO, Vector::YAXIS, 1);
-
-		//Fl::check();
 		Render();
 
 		cerr << "Frame " << i << endl;

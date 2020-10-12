@@ -9,6 +9,7 @@
 #define CR_WHITE	0xFFFFFFFF
 #define CR_GREEN	0xFF00FF00
 #define CR_BLACK	0xFF000000
+#define CR_YELLOW	0xFFFFFF00
 
 #pragma endregion
 
