@@ -241,9 +241,18 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Scene* scene, RenderMode rmode
 				Vector texture = (tme * currentPix) * d;
 				Vector light = (scene->plight->center - currP).Normalized();
 
-				// Add lighting to pixel	
-				material.SetPix(texture[0], texture[1]);
-				color = scene->plight->GetColor(light, normal, (ppc->C - currP).Normalized(), material);
+	
+				if (material.reflection) // Add reflection
+				{
+					Vector euv = (currP - ppc->C);
+					Vector ruv = euv.Reflect(normal);
+					color = scene->envmap->cubemap.Lookup(ruv);
+				}
+				else // Add lighting to pixel and color	
+				{	
+					material.SetPix(texture[0], texture[1]);
+					color = scene->plight->GetColor(light, normal, (ppc->C - currP).Normalized(), material);
+				}
 
 				// Add shadow to pixel
 				if (scene->plight->InShadow(currP)) { 
@@ -251,10 +260,10 @@ void TMesh::drawFilled(FrameBuffer* fb, PPC* ppc, Scene* scene, RenderMode rmode
 				}
 
 				// Add projector to pixel
-				Vector projColor;
+				/*Vector projColor;
 				if (scene->projector->GetProjectorColor(currP, projColor)) {
 					color = projColor;
-				}		
+				}*/	
 
 				fb->Set(u, v, color.GetColor());
 			}

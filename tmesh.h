@@ -28,7 +28,7 @@ public:
 	TMesh() : vertices(0), colors(0), normals(0), textures(0), 
 		trisv(0), trisvt(0), trisvn(0), 
 		verticesN(0), texturesN(0), trisN(0), 
-		BoundingBox(Vector::ZERO), material(0xFF0000FF) {};
+		BoundingBox(Vector::ZERO), material(0xFF0000FF, false) {};
 
 	void Allocate(int _vertsN, int _trisN);
 

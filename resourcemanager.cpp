@@ -3,6 +3,7 @@
 #include "texture.h"
 #include "material.h"
 #include "tmesh.h"
+#include "cubemap.h"
 
 using namespace std;
 
@@ -18,10 +19,13 @@ void ResourceManager::Load() {
 	AddTexture("Marble", "geometry/Textures/WhiteMarble.tif");
 	AddTexture("blender", "geometry/Textures/blender.tiff");
 
-	AddMaterial("red", Material(CR_RED));
-	AddMaterial("blue", Material(CR_BLUE));
-	AddMaterial("green", Material(CR_GREEN));
-	AddMaterial("yellow", Material(CR_YELLOW));
+	AddCubeMap("skymap", "geometry/Textures/skyboxMap.tiff");
+
+	AddMaterial("red", Material(CR_RED, false));
+	AddMaterial("blue", Material(CR_BLUE, false));
+	AddMaterial("green", Material(CR_GREEN, false));
+	AddMaterial("yellow", Material(CR_YELLOW, false));
+	AddMaterial("reflective", Material(CR_YELLOW, true));
 
 	AddMesh("cube", "geometry/cube.obj");
 	AddMesh("monkey", "geometry/monkey.obj");
@@ -46,6 +50,15 @@ void ResourceManager::AddMesh(string key, char* fname) {
 	TMesh mesh = TMesh();
 	mesh.LoadObj(fname);
 	meshes.insert(pair<string, TMesh>(key, mesh));
+}
+
+void ResourceManager::AddCubeMap(string key, char* fname)
+{
+	Texture tex = Texture(fname);
+	CubeMap cubemap = CubeMap();
+	cubemap.Load(tex);
+
+	cubemaps.insert(pair<string, CubeMap>(key, cubemap));
 }
 
 #pragma endregion

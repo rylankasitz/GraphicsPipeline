@@ -11,6 +11,7 @@
 #include "light.h"
 #include "projector.h"
 #include "resourcemanager.h"
+#include "envmap.h"
 
 class Scene {
 public:
@@ -23,6 +24,7 @@ public:
 
 	Light* plight;
 	Projector* projector;
+	EnvMap* envmap;
 
 	Scene();
 

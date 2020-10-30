@@ -90,6 +90,12 @@
     <ClInclude Include="resourcemanager.h">
       <Filter>Header Files\Resource Objects</Filter>
     </ClInclude>
+    <ClInclude Include="cubemap.h">
+      <Filter>Header Files\Data Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="envmap.h">
+      <Filter>Header Files\3D Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scene.cpp">
@@ -139,6 +145,12 @@
     </ClCompile>
     <ClCompile Include="resourcemanager.cpp">
       <Filter>Source Files\Resource Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="cubemap.cpp">
+      <Filter>Source Files\Data Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="envmap.cpp">
+      <Filter>Source Files\3D Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

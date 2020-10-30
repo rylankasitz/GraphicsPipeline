@@ -27,10 +27,10 @@ void WorldView::Show() {
 
 void WorldView::Render(Scene* scene) {
 
-	if (renderMode == RenderMode::Full) {
-		fb->SetBGR(0xFFFFFFFF);		
-	}
 	fb->ClearZB();
+	if (renderMode == RenderMode::Full) {
+		scene->envmap->Render(this);
+	}
 
 	if (renderMode == RenderMode::Full) {
 		for (auto& wv : scene->views) {

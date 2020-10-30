@@ -27,7 +27,7 @@ Scene::Scene() {
 	rm = new ResourceManager();
 
 	worldView = new WorldView(0, u0, v0, w, h, 90.0f, "Main");
-	worldView->ppc->SetPose(Vector(-100, 100, 100), Vector::ZERO, Vector::YAXIS);
+	worldView->ppc->SetPose(Vector(0, 50, 50), Vector::ZERO, Vector::YAXIS);
 	worldView->ppc->SetFocalLength(800);
 	worldView->Show();
 
@@ -46,6 +46,9 @@ Scene::Scene() {
 	InputHandler::Instatiate(worldView);
 
 	rm->Load();
+
+	envmap = new EnvMap(rm->cubemaps["skymap"]);
+
 	Load();
 	Render();
 }
@@ -58,15 +61,15 @@ void Scene::Load() {
 
 	rm->meshes["monkey"].SetCenter(Vector(0, 50, 0));
 	rm->meshes["monkey"].SetScale(40);
-	rm->meshes["monkey"].material = rm->materials["blue"];
+	rm->meshes["monkey"].material = rm->materials["reflective"];
 
-	rm->meshes["cube"].SetCenter(Vector(50, 50, 0));
+	/*rm->meshes["cube"].SetCenter(Vector(50, 50, 0));
 	rm->meshes["cube"].SetScale(40);
 	rm->meshes["cube"].material = rm->materials["red"];
 
 	rm->meshes["plane"].SetCenter(Vector(-50, 20, 0));
 	rm->meshes["plane"].SetScale(100);
-	rm->meshes["plane"].material = rm->materials["yellow"];
+	rm->meshes["plane"].material = rm->materials["yellow"];*/
 
 	plight->SetPosition(Vector(100, 100, 100));
 	projector->SetPostion(Vector(-100, 50, -100), Vector::ZERO);

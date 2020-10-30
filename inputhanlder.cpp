@@ -56,7 +56,23 @@ void InputHandler::handleKeyboard(int key) {
 
 	switch (key) {
 	case FL_Up: {
-		cerr << "INFO: pressed up key";
+		wv->ppc->TiltUp(5);
+		scene->Render();
+		break;
+	}
+	case FL_Down: {
+		wv->ppc->TiltUp(-5);
+		scene->Render();
+		break;
+	}
+	case FL_Left: {
+		wv->ppc->PanRight(-5);
+		scene->Render();
+		break;
+	}
+	case FL_Right: {
+		wv->ppc->PanRight(5);
+		scene->Render();
 		break;
 	}
 	default:

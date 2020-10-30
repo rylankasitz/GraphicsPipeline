@@ -19,6 +19,7 @@
 class TMesh;
 class Texture;
 class Material;
+class CubeMap;
 
 class ResourceManager
 {
@@ -26,12 +27,15 @@ public:
 	std::map<std::string, Texture> textures;
 	std::map<std::string, Material> materials;
 	std::map<std::string, TMesh> meshes;
+	std::map<std::string, CubeMap> cubemaps;
 
 	ResourceManager();
+
 	void Load();
 	void AddTexture(std::string key, char* fname);
 	void AddMaterial(std::string key, Material mat);
 	void AddMesh(std::string key, char* fname);
+	void AddCubeMap(std::string key, char* fname);
 
 private:
 
