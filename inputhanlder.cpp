@@ -56,22 +56,22 @@ void InputHandler::handleKeyboard(int key) {
 
 	switch (key) {
 	case FL_Up: {
-		wv->ppc->TiltUp(5);
+		wv->ppc->RotateAround(Vector::ZERO, Vector::XAXIS, 5);
 		scene->Render();
 		break;
 	}
 	case FL_Down: {
-		wv->ppc->TiltUp(-5);
+		wv->ppc->RotateAround(Vector::ZERO, Vector::XAXIS, -5);
 		scene->Render();
 		break;
 	}
 	case FL_Left: {
-		wv->ppc->PanRight(-5);
+		wv->ppc->RotateAround(Vector::ZERO, Vector::YAXIS, 5);
 		scene->Render();
 		break;
 	}
 	case FL_Right: {
-		wv->ppc->PanRight(5);
+		wv->ppc->RotateAround(Vector::ZERO, Vector::YAXIS, -5);
 		scene->Render();
 		break;
 	}

@@ -23,6 +23,7 @@ public:
 	void TiltUp(float step);
 	void RollLeft(float step);
 
+	void RotateAround(Vector point, Vector axis, float step);
 	void SetPose(Vector center, Vector lookAtPoint, Vector upGuidance);
 	void Interpolate(PPC* ppcS, PPC* ppcF, int i, int n);
 

@@ -19,7 +19,7 @@ void ResourceManager::Load() {
 	AddTexture("Marble", "geometry/Textures/WhiteMarble.tif");
 	AddTexture("blender", "geometry/Textures/blender.tiff");
 
-	AddCubeMap("skymap", "geometry/Textures/skyboxMap.tiff");
+	AddCubeMap("skymap", "geometry/user.tiff");
 
 	AddMaterial("red", Material(CR_RED, false));
 	AddMaterial("blue", Material(CR_BLUE, false));
@@ -27,10 +27,7 @@ void ResourceManager::Load() {
 	AddMaterial("yellow", Material(CR_YELLOW, false));
 	AddMaterial("reflective", Material(CR_YELLOW, true));
 
-	AddMesh("cube", "geometry/cube.obj");
-	AddMesh("monkey", "geometry/monkey.obj");
-	AddMesh("terrain", "geometry/terrain.obj");
-	AddMesh("plane", "geometry/plane.obj");
+	AddMesh("monkey", "geometry/monkey_hr.obj");
 }
 
 #pragma region Loading Resources

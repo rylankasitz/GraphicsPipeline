@@ -13,19 +13,22 @@ CubeMap::CubeMap()
 
 void CubeMap::Load(Texture cubemap)
 {
+	int wt = 3;
+	int ht = 4;
 
-	int w = cubemap.GetWidth() / 4;
-	int h = cubemap.GetHeight() / 3;
+	int w = cubemap.GetWidth() / wt;
+	int h = cubemap.GetHeight() / ht;
+	
 	int m = 0;
 
 	setPPC(w, h);
 
-	for (int j = 0; j < 3; j++)
+	for (int y = 0; y < ht; y++)
 	{
-		for (int i = 0; i < 4; i++)
+		for (int x = 0; x < wt; x++)
 		{
-			if ((i == 0 && j == 0) || (i == 2 && j == 0) || (i == 3 && j == 0) ||
-				(i == 0 && j == 2) || (i == 2 && j == 2) || (i == 3 && j == 2))
+			if ((x == 0 && y == 0) || (x == 2 && y == 0) || (x == 0 && y == 2) ||
+				(x == 2 && y == 2) || (x == 0 && y == 3) || (x == 2 && y == 3))
 				continue;
 
 			textures[m] = new Texture(w, h);
@@ -35,7 +38,7 @@ void CubeMap::Load(Texture cubemap)
 				for (int v = 0; v < h; v++)
 				{
 					unsigned int color;
-					if (cubemap.fb->Get(u + i * w, v + j * h, color))
+					if (cubemap.fb->Get(u + x * w, v + y * h, color))
 					{
 						textures[m]->fb->Set(u, v, color);
 					}
@@ -75,20 +78,20 @@ Vector CubeMap::Lookup(Vector ruv)
 void CubeMap::setPPC(int w, int h)
 {
 	ppcs[0] = new PPC(90.0f, w, h);
-	ppcs[0]->SetPose(Vector::ZERO, Vector::YAXIS * 10.0f, Vector::ZAXIS);
+	ppcs[0]->SetPose(Vector::ZERO, Vector::YAXIS, Vector::ZAXIS);
 
 	ppcs[1] = new PPC(90.0f, w, h);
-	ppcs[1]->SetPose(Vector::ZERO, Vector::XAXIS * -10.0f, Vector::YAXIS);
+	ppcs[1]->SetPose(Vector::ZERO, Vector::XAXIS * -1.0f, Vector::YAXIS);
 
 	ppcs[2] = new PPC(90.0f, w, h);
-	ppcs[2]->SetPose(Vector::ZERO, Vector::ZAXIS * -10.0f, Vector::YAXIS);
+	ppcs[2]->SetPose(Vector::ZERO, Vector::ZAXIS * -1.0f, Vector::YAXIS);
 
 	ppcs[3] = new PPC(90.0f, w, h);
-	ppcs[3]->SetPose(Vector::ZERO, Vector::XAXIS * 10.0f, Vector::YAXIS);
-
-	ppcs[4] = new PPC(90.0f, w, h);
-	ppcs[4]->SetPose(Vector::ZERO, Vector::ZAXIS * 10.0f, Vector::YAXIS);
+	ppcs[3]->SetPose(Vector::ZERO, Vector::XAXIS, Vector::YAXIS);
 
 	ppcs[5] = new PPC(90.0f, w, h);
-	ppcs[5]->SetPose(Vector::ZERO, Vector::YAXIS * -10.0f, Vector::ZAXIS * -1.0f);
+	ppcs[5]->SetPose(Vector::ZERO, Vector::ZAXIS, Vector::YAXIS * -1.0f);
+
+	ppcs[4] = new PPC(90.0f, w, h);
+	ppcs[4]->SetPose(Vector::ZERO, Vector::YAXIS * -1.0f, Vector::ZAXIS * -1.0f);
 }

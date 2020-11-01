@@ -28,7 +28,7 @@ void WorldView::Show() {
 void WorldView::Render(Scene* scene) {
 
 	fb->ClearZB();
-	if (renderMode == RenderMode::Full) {
+	if (renderMode == RenderMode::Full || renderMode == RenderMode::SceneRender) {
 		scene->envmap->Render(this);
 	}
 

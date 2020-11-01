@@ -13,6 +13,8 @@ using namespace std::chrono;
 
 Scene::Scene() {
 
+	#pragma region Set GUI
+
 	int u0 = 20;
 	int v0 = 40;
 	int h = 800;
@@ -22,26 +24,25 @@ Scene::Scene() {
 	gui->show();
 	gui->uiw->position(u0 + w + 50, v0);
 
+	#pragma endregion
+
 	plight = new Light(0.25f, 0.5f, this);
 	projector = new Projector("geometry/Textures/blender.tiff", this);
 	rm = new ResourceManager();
+
+	#pragma region Load PPCs
 
 	worldView = new WorldView(0, u0, v0, w, h, 90.0f, "Main");
 	worldView->ppc->SetPose(Vector(0, 50, 50), Vector::ZERO, Vector::YAXIS);
 	worldView->ppc->SetFocalLength(800);
 	worldView->Show();
 
-	views.push_back(new WorldView(0, u0, v0, w, h, 90.0f, "v0"));
-	views[0]->ppc->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
+	views.push_back(new WorldView(0, u0, v0, w, h, 90.0f, "Render"));
+	views[0]->ppc->SetPose(Vector(0, 0, 100), Vector::ZERO, Vector::YAXIS);
 	views[0]->ppc->SetFocalLength(800);
-
-	views.push_back(new WorldView(0, u0, v0, w, h, 90.0f, "v1"));
-	views[1]->ppc->SetPose(Vector(0, 100, 100), Vector::ZERO, Vector::YAXIS);
-	views[1]->ppc->SetFocalLength(800);
-
-	views.push_back(new WorldView(0, u0, v0, w, h, 90.0f, "v2"));
-	views[2]->ppc->SetPose(Vector(200, 100, 100), Vector::ZERO, Vector::YAXIS);
-	views[2]->ppc->SetFocalLength(800);
+	views[0]->renderMode = RenderMode::SceneRender;
+		
+	#pragma endregion
 
 	InputHandler::Instatiate(worldView);
 
@@ -55,24 +56,12 @@ Scene::Scene() {
 
 void Scene::Load() {
 
-	rm->meshes["terrain"].SetCenter(Vector::ZERO);
-	rm->meshes["terrain"].SetScale(400);
-	rm->meshes["terrain"].material = rm->materials["green"];
-
-	rm->meshes["monkey"].SetCenter(Vector(0, 50, 0));
-	rm->meshes["monkey"].SetScale(40);
+	rm->meshes["monkey"].SetCenter(Vector(0, 0, 0));
+	rm->meshes["monkey"].SetScale(80);
 	rm->meshes["monkey"].material = rm->materials["reflective"];
 
-	/*rm->meshes["cube"].SetCenter(Vector(50, 50, 0));
-	rm->meshes["cube"].SetScale(40);
-	rm->meshes["cube"].material = rm->materials["red"];
-
-	rm->meshes["plane"].SetCenter(Vector(-50, 20, 0));
-	rm->meshes["plane"].SetScale(100);
-	rm->meshes["plane"].material = rm->materials["yellow"];*/
-
 	plight->SetPosition(Vector(100, 100, 100));
-	projector->SetPostion(Vector(-100, 50, -100), Vector::ZERO);
+	//projector->SetPostion(Vector(-100, 50, -100), Vector::ZERO);
 }
 
 void Scene::Render() {
@@ -93,18 +82,15 @@ void Scene::Demo() {
 	views[0]->Show();
 	for (int i = 0; i < steps; i++) {	
 
-		if (i < 200)
-			plight->Rotate(Vector::ZERO, Vector::YAXIS, 360 / (float) 200);
-		else if (i < 400)
-			projector->Rotate(Vector::ZERO, Vector::YAXIS, 360 / (float)200);
-		else
-			views[0]->ppc->Interpolate(views[1]->ppc, views[2]->ppc, i - 400, 200);
+		views[0]->ppc->RotateAround(Vector::ZERO, Vector::YAXIS, 360.0f / 600.0f);
+		views[0]->ppc->RotateAround(Vector::ZERO, Vector::XAXIS, 360.0f / -600.0f);
+		views[0]->ppc->RotateAround(Vector::ZERO, Vector::ZAXIS, 360.0f / 600.0f);
 
 		Render();
 
 		cerr << "Frame " << i << endl;
 
-		string out = "animations/rotation_";
+		string out = "animations/render_";
 		out += to_string(i);
 		out += ".tif";
 		views[0]->fb->SaveAsTiff((char *) out.c_str());

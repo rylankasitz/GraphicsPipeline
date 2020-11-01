@@ -129,6 +129,15 @@ void PPC::SetPose(Vector center, Vector lookAtPoint, Vector upGuidance) {
 	a = newa; b = newb; c = newc; C = center;
 }
 
+void PPC::RotateAround(Vector point, Vector axis, float step)
+{
+
+	C.RotatePoint(point, axis, step);
+	a.RotatePoint(point, axis, step);
+	b.RotatePoint(point, axis, step);
+	c.RotatePoint(point, axis, step);
+}
+
 void PPC::Interpolate(PPC* ppcS, PPC* ppcF, int i, int n) {
 
 	float scf = (float)i / (float)(n - 1);

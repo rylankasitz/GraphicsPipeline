@@ -8,7 +8,7 @@ class TMesh;
 class Light;
 class Scene;
 
-enum class RenderMode { Full, ShadowMap, CubeMap };
+enum class RenderMode { Full, ShadowMap, CubeMap, SceneRender };
 
 class WorldView {
 public:
