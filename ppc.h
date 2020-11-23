@@ -34,6 +34,9 @@ public:
 
 	void Visualize(WorldView* wv, float vf);
 
+	void SetIntrinsicsHW();
+	void SetExtrinsicsHW();
+
 	void Save(const char* textfile);
 	void Load(const char* textfile);
 

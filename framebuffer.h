@@ -6,12 +6,15 @@
 
 class PPC;
 class Vector;
+class WorldView;
 
 class FrameBuffer : public Fl_Gl_Window {
 public:
 	unsigned int *pix; // pixel array
 	float* zb;
 	int w, h;
+
+	WorldView* wv;
 
 	FrameBuffer(int u0, int v0, int _w, int _h, unsigned int _id);
 

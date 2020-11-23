@@ -24,12 +24,52 @@ void TMesh::Allocate(int _vertsN, int _trisN) {
 
 void TMesh::DrawMesh(WorldView* wv, Scene* scene) {
 
-	if (DrawMode == DrawMode::WireFrame) {
+	if (DrawMode == MeshMode::WireFrame) {
 		drawWireFrame(wv->fb, wv->ppc);
 	}
-	else if (DrawMode == DrawMode::Filled) {
+	else if (DrawMode == MeshMode::Filled) {
 		drawFilled(wv->fb, wv->ppc, scene, wv->renderMode);
 	}
+}
+
+void TMesh::DrawHW() {
+
+	if (DrawMode == MeshMode::Filled) 
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	else 
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_TEXTURE);
+
+	glVertexPointer(3, GL_FLOAT, 0, (float*)verticesArr);
+	glColorPointer(3, GL_FLOAT, 0, (float*)colorsArr);
+	glNormalPointer(GL_FLOAT, 0, (float*)normalsArr);
+	glTexCoordPointer(2, GL_FLOAT, 0, (float*)textcoords);
+
+	glDisable(GL_TEXTURE_2D);
+	if (material.texture.textureHandle)
+	{
+		glEnable(GL_TEXTURE_2D);
+		//glActiveTexture(CG_TEXCOORD0);
+		glBindTexture(GL_TEXTURE_2D, material.texture.textureHandle);
+
+	}
+
+	glDrawElements(GL_TRIANGLES, trisv.size(), GL_UNSIGNED_INT, trisvArr);
+
+	glDisableClientState(GL_TEXTURE);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 #pragma endregion
@@ -54,6 +94,13 @@ void TMesh::SetScale(float size) {
 		vertices[i] = vertices[i] + center;
 	}
 
+	for (int i = 0; i < trisv.size(); i++)
+	{
+		verticesArr[i] = vertices[trisv[i]];
+	}
+
+	computeBBox();
+
 	BoundingBox.Size = size;
 }
 
@@ -64,9 +111,17 @@ float TMesh::GetScale() {
 
 void TMesh::Translate(Vector translation) {
 
-	for (int i = 0; i < verticesN; i++) {
+	for (int i = 0; i < verticesN; i++) 
+	{
 		vertices[i] = vertices[i] + translation;
 	}
+
+	for (int i = 0; i < trisv.size(); i++)
+	{
+		verticesArr[i] = vertices[trisv[i]];
+	}
+
+	computeBBox();
 
 	center = center + translation;
 }
@@ -75,6 +130,26 @@ void TMesh::Rotate(Vector origin, Vector axis, float angle) {
 
 	for (int i = 0; i < verticesN; i++) {
 		vertices[i].RotatePoint(origin, axis, angle);
+	}
+
+	for (int i = 0; i < trisv.size(); i++)
+	{
+		verticesArr[i] = vertices[trisv[i]];
+	}
+}
+
+void TMesh::SetBBox(BBox& aabb) {
+
+	for (int vi = 0; vi < vertices.size(); vi++) {
+		aabb.AddPoint(vertices[vi]);
+	}
+}
+
+void TMesh::SetMaterial(Material material) {
+
+	this->material = material;
+	for (int i = 0; i < trisv.size(); i++) {
+		colorsArr[i] = material.color;
 	}
 }
 
@@ -120,6 +195,25 @@ void TMesh::LoadObj(char* fname) {
 			}
 			trisN++;
 		}
+	}
+
+	
+	trisvArr = new unsigned int[trisv.size()];
+	verticesArr = new Vector[trisv.size()];
+	colorsArr = new Vector[trisv.size()];
+	textcoords = new float[trisv.size() * 2];
+	normalsArr = new Vector[trisv.size()];
+
+	int j = 0;
+	for (int i = 0; i < trisv.size(); i++)
+	{
+		verticesArr[i] = vertices[trisv[i]];
+		colorsArr[i] = material.color;
+		normalsArr[i] = normals[trisvn[i]];
+		trisvArr[i] = i;
+		textcoords[j] = textures[trisvt[i]][0];
+		textcoords[j + 1] = textures[trisvt[i]][1];
+		j += 2;
 	}
 
 	computeBBox();

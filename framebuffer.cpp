@@ -19,7 +19,6 @@ FrameBuffer::FrameBuffer(int u0, int v0,
 	h = _h;
 	pix = new unsigned int[w * h];
 	zb = new float[w * h];
-
 }
 
 #pragma region Input Handling
@@ -41,8 +40,23 @@ void FrameBuffer::ClearZB() {
 
 void FrameBuffer::draw() {
 
-	glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, pix);
 
+
+	if (wv->drawMode == DrawMode::CPU)
+	{
+		wv->RenderCPU(wv->scene);
+		glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, pix);
+	}
+	else if (wv->drawMode == DrawMode::HardWare)
+	{
+		wv->RenderHW(wv->scene);
+	}
+	else if (wv->drawMode == DrawMode::GPU)
+	{
+		wv->RenderGPU(wv->scene);
+	}
+
+	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pix);
 }
 
 void FrameBuffer::Set(int u, int v, unsigned int color) {

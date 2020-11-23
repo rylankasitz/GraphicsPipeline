@@ -13,6 +13,7 @@ class InputHandler {
 public:
 	static void Instatiate(WorldView* _wv);
 	static int event_handler(int event);
+	static void SetEnabled(bool e);
 
 private:
 

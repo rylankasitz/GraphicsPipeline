@@ -7,6 +7,7 @@ using namespace std;
 
 int ppx, ppy;
 WorldView* wv;
+bool enabled = true;
 
 void InputHandler::Instatiate(WorldView* _wv) {
 
@@ -14,76 +15,83 @@ void InputHandler::Instatiate(WorldView* _wv) {
 	ppx = 0; ppy = 0;
 }
 
+void InputHandler::SetEnabled(bool e) {
+	enabled = e;
+}
+
 int InputHandler::event_handler(int event) {
 
-	switch (event)
-	{
-	case FL_KEYBOARD: {
-		handleKeyboard(Fl::event_key());
+	if (enabled) {
+		switch (event)
+		{
+		case FL_KEYBOARD: {
+			handleKeyboard(Fl::event_key());
+			return 0;
+		}
+		case FL_MOVE: {
+			int x = Fl::event_x(), y = Fl::event_y();
+			//cerr << x << " " << y << "        \r";
+
+			ppx = x; ppy = y;
+			return 0;
+		}
+		case FL_DRAG: {
+			int x = Fl::event_x(), y = Fl::event_y();
+			int state = Fl::event_button();
+			//cerr << x << " " << y << " " << state << "        \r";
+
+			handleMouseDrag(x, y, state);
+
+			ppx = x; ppy = y;
+			return 0;
+		}
+		case FL_MOUSEWHEEL: {
+			int x = Fl::event_dx(), y = Fl::event_dy();
+
+			handleMouseScroll(x, y);
+
+			return 0;
+		}
+		default:
+			return 0;
+		}
 		return 0;
 	}
-	case FL_MOVE: {
-		int x = Fl::event_x(), y = Fl::event_y();
-		//cerr << x << " " << y << "        \r";
-
-		ppx = x; ppy = y;
-		return 0;
-	}
-	case FL_DRAG: {
-		int x = Fl::event_x(), y = Fl::event_y();
-		int state = Fl::event_button();
-		//cerr << x << " " << y << " " << state << "        \r";
-
-		handleMouseDrag(x, y, state);
-
-		ppx = x; ppy = y;
-		return 0;
-	}
-	case FL_MOUSEWHEEL: {
-		int x = Fl::event_dx(), y = Fl::event_dy();
-
-		handleMouseScroll(x, y);
-
-		return 0;
-	}
-	default:
-		return 0;
-	}
-	return 0;
 }
 
 void InputHandler::handleKeyboard(int key) {
-
-	switch (key) {
-	case FL_Up: {
-		wv->ppc->RotateAround(Vector::ZERO, Vector::XAXIS, 5);
-		scene->Render();
-		break;
-	}
-	case FL_Down: {
-		wv->ppc->RotateAround(Vector::ZERO, Vector::XAXIS, -5);
-		scene->Render();
-		break;
-	}
-	case FL_Left: {
-		wv->ppc->RotateAround(Vector::ZERO, Vector::YAXIS, 5);
-		scene->Render();
-		break;
-	}
-	case FL_Right: {
-		wv->ppc->RotateAround(Vector::ZERO, Vector::YAXIS, -5);
-		scene->Render();
-		break;
-	}
-	default:
-		cerr << "INFO: do not understand keypress" << endl;
+	
+	if (enabled) {
+		switch (key) {
+		case FL_Up: {
+			wv->ppc->RotateAround(Vector::ZERO, Vector::XAXIS, 5);
+			scene->Render();
+			break;
+		}
+		case FL_Down: {
+			wv->ppc->RotateAround(Vector::ZERO, Vector::XAXIS, -5);
+			scene->Render();
+			break;
+		}
+		case FL_Left: {
+			wv->ppc->RotateAround(Vector::ZERO, Vector::YAXIS, 5);
+			scene->Render();
+			break;
+		}
+		case FL_Right: {
+			wv->ppc->RotateAround(Vector::ZERO, Vector::YAXIS, -5);
+			scene->Render();
+			break;
+		}
+		default:
+			cerr << "INFO: do not understand keypress" << endl;
+		}
 	}
 }
 
 void InputHandler::handleMouseDrag(int x, int y, int event) {
 
 	float xd = ppx - x; float yd = ppy - y;
-
 	switch (event)
 	{
 	case FL_LEFT_MOUSE: {

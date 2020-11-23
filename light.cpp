@@ -4,6 +4,7 @@
 #include "worldview.h"
 #include "tmesh.h"
 #include "scene.h"
+#include "bbox.h"
 
 #include <algorithm>  
 
@@ -16,13 +17,18 @@ Light::Light(float _ambient, float _intensity, Scene* _scene)
 	ambience = _ambient;
 	scene = _scene;
 
-	wvShadowMap = new WorldView(0, 0, 0, 2000, 2000, 120.0f, "Shadowmap");
+	wvShadowMap = new WorldView(0, 0, 0, 2000, 2000, 120.0f, "Shadowmap", NULL);
 	wvShadowMap->ppc->SetPose(center, Vector::ZERO, Vector::YAXIS);
 	wvShadowMap->renderMode = RenderMode::ShadowMap;
+	depthMap = 0;
+
+}
+
+void Light::Load() {
+
 }
 
 void Light::Render(WorldView* wv) {
-
 	wv->fb->Draw3DPoint(center, wv->ppc, CR_YELLOW, 10);
 }
 
@@ -56,6 +62,10 @@ bool Light::InShadow(Vector point) {
 void Light::SetPosition(Vector position) {
 
 	center = position;
+	areaV[0] = center + Vector(-size, -size, 0);
+	areaV[1] = center + Vector(size, -size, 0);
+	areaV[2] = center + Vector(size, size, 0);
+	areaV[3] = center + Vector(-size, size, 0);
 	wvShadowMap->ppc->SetPose(center, Vector::ZERO, Vector::YAXIS);
 	RenderShadowMap();
 }

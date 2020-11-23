@@ -26,12 +26,16 @@ public:
 	Projector* projector;
 	EnvMap* envmap;
 
+	float p1; // test parameter for fragment shader
+
 	Scene();
 
 	void Load();
 	void DBG();
 	void Demo();
 	void Render();
+	void shadowDemo();
+	void hDemo();
 };
 
 extern Scene *scene;

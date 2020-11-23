@@ -13,7 +13,7 @@ Projector::Projector(char* tex, Scene* _scene) {
 	lookatPoint = Vector::ZERO;
 	scene = _scene;
 
-	wv = new WorldView(0, 0, 0, tfb->w, tfb->h, 25.0f, "projector");
+	wv = new WorldView(0, 0, 0, tfb->w, tfb->h, 25.0f, "projector", NULL);
 	wv->fb->LoadTiff(tex);	
 	wv->ppc->SetPose(center, lookatPoint, Vector::YAXIS);
 	wv->renderMode = RenderMode::ShadowMap;

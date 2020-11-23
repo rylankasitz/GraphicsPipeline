@@ -96,6 +96,9 @@
     <ClInclude Include="envmap.h">
       <Filter>Header Files\3D Objects</Filter>
     </ClInclude>
+    <ClInclude Include="CGInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scene.cpp">
@@ -151,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="envmap.cpp">
       <Filter>Source Files\3D Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="CGInterface.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -31,6 +31,8 @@ public:
 
 	ResourceManager();
 
+	bool hasloaded;
+
 	void Load();
 	void AddTexture(std::string key, char* fname);
 	void AddMaterial(std::string key, Material mat);

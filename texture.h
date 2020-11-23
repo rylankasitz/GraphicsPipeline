@@ -12,6 +12,8 @@ public:
 	bool none;
 	FrameBuffer* fb;
 
+	GLuint textureHandle;
+
 	Texture();
 	Texture(int w, int h);
 	Texture(char* _tname);
